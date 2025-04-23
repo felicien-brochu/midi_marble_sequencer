@@ -1,0 +1,21 @@
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 647:Plugin executed on: 'win32'
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 648:Plugin executed with python version: '3.11.5 (main, Dec 24 2024, 05:27:06) [MSC v.1942 64 bit (AMD64)]'
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 649:KiCad build version: 8.0.8
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 650:Plugin version: 3.0.0
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 651:Frame repr: <wx._core.Frame object at 0x0000022ABC22F880>
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.place_footprints 121:getting a list of all footprints on board
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.place_footprints 156:Footprint J2 on root level
+01-23 12:08:42 com_github_MitjaNemec_PlaceFootprints.place_footprints 156:Footprint J1 on root level
+01-23 12:08:43 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 830:Reference designator is: D
+01-23 12:08:43 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 831:Reference number is: 1
+01-23 12:08:43 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 863:Sorted and filtered list:
+['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']
+01-23 12:08:44 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 359:wx.Colour(240, 240, 240, 255)
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 490:'30'
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 536:Preparing config for reference linear
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 556:Saving config file
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 558:Saved the config file
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 901:Footprints to place:
+['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.place_footprints 367:Starting placing with linear layout
+01-23 12:08:47 com_github_MitjaNemec_PlaceFootprints.action_place_footprints 942:Placing complete

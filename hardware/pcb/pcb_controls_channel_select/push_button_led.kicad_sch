@@ -1,0 +1,847 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "97a3ff3f-864f-4141-83ec-301b36dfd332")
+	(paper "A4")
+	(lib_symbols
+		(symbol "Device:LED"
+			(pin_numbers hide)
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Switch:SW_Push"
+			(pin_numbers hide)
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 1.27 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "SW_Push"
+				(at 0 -1.524 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Push button switch, generic, two pins"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "switch normally-open pushbutton push-button"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_Push_0_1"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 1.27) (xy 0 3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 1.27) (xy -2.54 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "power:+3.3V"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+3.3V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+3.3V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+3.3V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(hierarchical_label "push_button_out"
+		(shape input)
+		(at 106.68 72.39 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "12c635ac-0516-4d66-9f3e-ec854c1cb8b8")
+	)
+	(hierarchical_label "led_in"
+		(shape input)
+		(at 105.41 81.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "ffb1f17d-775e-4189-a2c3-47ea3d477f39")
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 97.79 81.28 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "004edf7e-1085-4bf0-825b-a1cae5e38cf0")
+		(property "Reference" "#PWR04"
+			(at 101.6 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 94.615 81.28 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 97.79 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 97.79 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 97.79 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "21704459-c59a-425e-b9d6-9e45d57b5e59")
+		)
+		(instances
+			(project "MIDI_marble_sequencer_controls_channel_select"
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/10c71688-a200-4126-8601-4fa7d608b952"
+					(reference "#PWR016")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/316fc669-9bc6-4fc6-b8ad-442676c26f19"
+					(reference "#PWR018")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/49db60d1-23d6-4824-90b1-26e7b0aaadae"
+					(reference "#PWR010")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/7abc23c8-ad68-4554-ba23-557ff67a9b34"
+					(reference "#PWR04")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cb8fe318-99a7-4729-8ee5-3cb428b07a2e"
+					(reference "#PWR012")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cc7da4b5-bf26-407e-96eb-377567ad59c9"
+					(reference "#PWR08")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/df01aec9-e966-4497-8e39-aa0b796afd3d"
+					(reference "#PWR06")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/f216880a-490f-4b29-8259-1689c050f250"
+					(reference "#PWR014")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 96.52 72.39 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "529ee555-4cf6-48f6-af30-195e845aada0")
+		(property "Reference" "#PWR05"
+			(at 100.33 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 93.345 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 96.52 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 96.52 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "06cf65a4-5fcc-4737-b47a-b2d6e5bafc14")
+		)
+		(instances
+			(project "MIDI_marble_sequencer_controls_channel_select"
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/10c71688-a200-4126-8601-4fa7d608b952"
+					(reference "#PWR015")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/316fc669-9bc6-4fc6-b8ad-442676c26f19"
+					(reference "#PWR017")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/49db60d1-23d6-4824-90b1-26e7b0aaadae"
+					(reference "#PWR09")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/7abc23c8-ad68-4554-ba23-557ff67a9b34"
+					(reference "#PWR03")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cb8fe318-99a7-4729-8ee5-3cb428b07a2e"
+					(reference "#PWR011")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cc7da4b5-bf26-407e-96eb-377567ad59c9"
+					(reference "#PWR07")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/df01aec9-e966-4497-8e39-aa0b796afd3d"
+					(reference "#PWR05")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/f216880a-490f-4b29-8259-1689c050f250"
+					(reference "#PWR013")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_Push")
+		(at 101.6 72.39 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ab359eee-4cc5-43ac-8fdf-150090120ba5")
+		(property "Reference" "SW1"
+			(at 101.6 65.3245 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_Push"
+			(at 101.6 67.7488 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_SMD:SW_Push_1TS009xxxx-xxxx-xxxx_6x6x5mm"
+			(at 101.6 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 101.6 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Push button switch, generic, two pins"
+			(at 101.6 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "0817146e-e216-4ced-b1f7-8fce6c23b900")
+		)
+		(pin "1"
+			(uuid "417e726f-ed86-4b08-9b8a-89efe5786bae")
+		)
+		(instances
+			(project "MIDI_marble_sequencer_controls_channel_select"
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/10c71688-a200-4126-8601-4fa7d608b952"
+					(reference "SW7")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/316fc669-9bc6-4fc6-b8ad-442676c26f19"
+					(reference "SW8")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/49db60d1-23d6-4824-90b1-26e7b0aaadae"
+					(reference "SW4")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/7abc23c8-ad68-4554-ba23-557ff67a9b34"
+					(reference "SW1")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cb8fe318-99a7-4729-8ee5-3cb428b07a2e"
+					(reference "SW5")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cc7da4b5-bf26-407e-96eb-377567ad59c9"
+					(reference "SW3")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/df01aec9-e966-4497-8e39-aa0b796afd3d"
+					(reference "SW2")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/f216880a-490f-4b29-8259-1689c050f250"
+					(reference "SW6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 101.6 81.28 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e0ebaad7-b4cc-4ed1-9fef-2099d724c7fe")
+		(property "Reference" "D2"
+			(at 103.1875 74.9765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 103.1875 77.4008 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D3.0mm"
+			(at 101.6 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 101.6 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 101.6 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "258b05a6-325f-4226-82ed-a44c2fddef86")
+		)
+		(pin "1"
+			(uuid "caf7ce4f-0f2b-4552-ba4f-5fffb48b053e")
+		)
+		(instances
+			(project "MIDI_marble_sequencer_controls_channel_select"
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/10c71688-a200-4126-8601-4fa7d608b952"
+					(reference "D7")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/316fc669-9bc6-4fc6-b8ad-442676c26f19"
+					(reference "D8")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/49db60d1-23d6-4824-90b1-26e7b0aaadae"
+					(reference "D4")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/7abc23c8-ad68-4554-ba23-557ff67a9b34"
+					(reference "D1")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cb8fe318-99a7-4729-8ee5-3cb428b07a2e"
+					(reference "D5")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/cc7da4b5-bf26-407e-96eb-377567ad59c9"
+					(reference "D3")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/df01aec9-e966-4497-8e39-aa0b796afd3d"
+					(reference "D2")
+					(unit 1)
+				)
+				(path "/15c24bb2-2eb1-4d3e-858d-36190cb55ae6/f216880a-490f-4b29-8259-1689c050f250"
+					(reference "D6")
+					(unit 1)
+				)
+			)
+		)
+	)
+)

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "sequencer")(type "KiCad")(uri "E:/Documents/Programmation/marble_sequencer/marble_sequencer_circuits/sequencer.pretty")(options "")(descr ""))
+)
