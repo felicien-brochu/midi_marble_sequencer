@@ -1,5 +1,5 @@
-#include "IRSensBoard.h"
-#include "IRSensBoardReaderOneShot.h"
+#include "IRSensBoards.h"
+#include "IRSensReader.h"
 #include "PushButton.h"
 #include "marble_type.h"
 #include "SensorStatistics.h"
@@ -30,8 +30,8 @@ private:
     int _ms_between_samples;
     int _multisampling;
 
-    IRSensBoard _ir_sens_board;
-    IRSensBoardReaderOneShot _board_reader;
+    IRSensBoards _ir_sens_boards;
+    IRSensReader _board_reader;
     PushButton _push_button;
 
     int *_values_on;

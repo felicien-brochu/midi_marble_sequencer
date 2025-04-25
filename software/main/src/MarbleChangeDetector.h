@@ -1,6 +1,6 @@
 #include "marble_type.h"
-#include "IRSensBoard.h"
-#include "IRSensBoardReaderOneShot.h"
+#include "IRSensBoards.h"
+#include "IRSensReader.h"
 
 class MarbleChangeDetector
 {
@@ -10,8 +10,8 @@ public:
     void update();
 
 private:
-    IRSensBoard _ir_sens_board;
-    IRSensBoardReaderOneShot _board_reader;
+    IRSensBoards _ir_sens_boards;
+    IRSensReader _board_reader;
 
     int *_values_on;
     int *_values_off;

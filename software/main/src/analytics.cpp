@@ -5,7 +5,7 @@
 #include <math.h>
 #include <esp_timer.h>
 
-void print_values(int *values_off, int *values_on, uint8_t ir_sens_on_board)
+void print_board_values(int *values_off, int *values_on, uint8_t ir_sens_on_board)
 {
     for (int i = 0; i < ir_sens_on_board; i++)
     {
@@ -15,7 +15,7 @@ void print_values(int *values_off, int *values_on, uint8_t ir_sens_on_board)
     }
 }
 
-void statistics(int *values_off, int *values_on, IRSensBoard *ir_sens_board, uint64_t print_every_seconds) {
+void statistics(int *values_off, int *values_on, IRSensBoards *ir_sens_boards, uint64_t print_every_seconds) {
     static uint64_t call_count = 0;
     static double *sum_off = NULL;
     static double *sum_on = NULL;
@@ -36,20 +36,20 @@ void statistics(int *values_off, int *values_on, IRSensBoard *ir_sens_board, uin
 
     if (call_count == 0)
     {
-        sum_off = (double*) malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        sum_on = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        sum_diff = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        sum_squared_diff = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diffs0 = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        sum_diff_delta = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        sum_diff_delta_squared = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diff_means = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diff_variances = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diff_variances2 = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diff_mins = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
-        diff_maxs = (double *)malloc(ir_sens_board->ir_sens_on_board * sizeof(double));
+        sum_off = (double*) malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        sum_on = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        sum_diff = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        sum_squared_diff = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diffs0 = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        sum_diff_delta = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        sum_diff_delta_squared = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diff_means = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diff_variances = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diff_variances2 = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diff_mins = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
+        diff_maxs = (double *)malloc(NUM_IR_SENS_BY_BOARD * sizeof(double));
 
-        for (int i = 0; i < ir_sens_board->ir_sens_on_board; i++)
+        for (int i = 0; i < NUM_IR_SENS_BY_BOARD; i++)
         {
             sum_off[i] = 0;
             sum_on[i] = 0;
@@ -70,7 +70,7 @@ void statistics(int *values_off, int *values_on, IRSensBoard *ir_sens_board, uin
 
     double diff_means_sum = 0;
 
-    for (int i = 0; i < ir_sens_board->ir_sens_on_board; i++)
+    for (int i = 0; i < NUM_IR_SENS_BY_BOARD; i++)
     {
         sum_off[i] += values_off[i];
         sum_on[i] += values_on[i];
@@ -112,20 +112,20 @@ void statistics(int *values_off, int *values_on, IRSensBoard *ir_sens_board, uin
         }
     }
 
-    diff_mean = diff_means_sum / ir_sens_board->ir_sens_on_board ;
+    diff_mean = diff_means_sum / NUM_IR_SENS_BY_BOARD ;
 
     if (esp_timer_get_time() - last_print_time >= print_every_seconds * 1000000) {
         last_print_time = esp_timer_get_time();
         double super_sum_squared = 0;
         double super_sum = 0;
-        double n_values = call_count * ir_sens_board->ir_sens_on_board;
+        double n_values = call_count * NUM_IR_SENS_BY_BOARD;
 
         printf("+----------+----------+----------+----------+----------+----------+----------+\n");
         printf("|  sensor  |   mean   | ecartype | -3sigma  |   min    | +3sigma  |   max    |\n");
 
-        for (int i = 0; i < ir_sens_board->ir_sens_on_board; i++)
+        for (int i = 0; i < NUM_IR_SENS_BY_BOARD; i++)
         {
-            printf("|  sens%2d  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |\n", ir_sens_board->get_sensor_channel(i), diff_means[i], sqrt(diff_variances2[i]), diff_means[i] - 3 * sqrt(diff_variances2[i]), diff_mins[i], diff_means[i] + 3 * sqrt(diff_variances2[i]), diff_maxs[i]);
+            printf("|  sens%2d  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |  %6.0f  |\n", i, diff_means[i], sqrt(diff_variances2[i]), diff_means[i] - 3 * sqrt(diff_variances2[i]), diff_mins[i], diff_means[i] + 3 * sqrt(diff_variances2[i]), diff_maxs[i]);
 
             super_sum += sum_diff[i];
             super_sum_squared += sum_squared_diff[i];
@@ -146,7 +146,7 @@ void statistics(int *values_off, int *values_on, IRSensBoard *ir_sens_board, uin
     }
 }
 
-void distribution(int *values_off, int *values_on, uint8_t sensor_index, IRSensBoard *ir_sens_board, uint64_t print_every_seconds)
+void distribution(int *values_off, int *values_on, uint8_t sensor_index, IRSensBoards *ir_sens_boards, uint64_t print_every_seconds)
 {
     static uint64_t call_count = 0;
     static uint64_t last_print_time = esp_timer_get_time();

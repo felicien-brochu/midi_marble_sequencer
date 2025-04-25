@@ -2,7 +2,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-MarbleCalibration::MarbleCalibration(int marble_type_shifts, int samples_by_test, int ms_between_samples, int multisampling) : _board_reader(&_ir_sens_board), _push_button(GPIO_NUM_0, true)
+MarbleCalibration::MarbleCalibration(int marble_type_shifts, int samples_by_test, int ms_between_samples, int multisampling) : _board_reader(&_ir_sens_boards), _push_button(GPIO_NUM_0, true)
 {
     _marble_type_shifts = marble_type_shifts;
     _samples_by_test = samples_by_test;
@@ -13,12 +13,12 @@ MarbleCalibration::MarbleCalibration(int marble_type_shifts, int samples_by_test
     _first_marble_type = WHITE_MARBLE;
     _measure_count = 0;
     
-    _values_on = (int*) malloc(_ir_sens_board.ir_sens_on_board * sizeof(int));
-    _values_off = (int*) malloc(_ir_sens_board.ir_sens_on_board * sizeof(int));
+    _values_on = (int*) malloc(NUM_IR_SENS_BY_BOARD * sizeof(int));
+    _values_off = (int*) malloc(NUM_IR_SENS_BY_BOARD * sizeof(int));
 
-    _statistics = (SensorStatistics **) malloc(_ir_sens_board.ir_sens_on_board * (WHITE_MARBLE + 1) * sizeof(SensorStatistics*));
+    _statistics = (SensorStatistics **) malloc(NUM_IR_SENS_BY_BOARD * (WHITE_MARBLE + 1) * sizeof(SensorStatistics*));
 
-    for (int i = 0; i < _ir_sens_board.ir_sens_on_board; i++) {
+    for (int i = 0; i < NUM_IR_SENS_BY_BOARD; i++) {
         for (int j = 0; j < (WHITE_MARBLE + 1); j++) {
             _statistics[i * (WHITE_MARBLE + 1) + j] = new SensorStatistics(i, (marble_type_t)j, _marble_type_shifts * _samples_by_test);
         }
@@ -75,9 +75,9 @@ void MarbleCalibration::_waiting_placement_state_update()
 void MarbleCalibration::_read_state_update()
 {
     for (int i = 0; i < _samples_by_test; i++) {
-        _board_reader.read_values(_values_off, _values_on, _multisampling);
+        _board_reader.read_board_values(_values_off, _values_on, _multisampling);
 
-        for (int j = 0; j < _ir_sens_board.ir_sens_on_board; j++) {
+        for (int j = 0; j < NUM_IR_SENS_BY_BOARD; j++) {
             _statistics[j * (WHITE_MARBLE + 1) + _get_ir_sens_marble_type(j)]->push_sample(_values_off[j], _values_on[j]);
         }
         vTaskDelay(pdMS_TO_TICKS(_ms_between_samples));
@@ -151,7 +151,7 @@ void MarbleCalibration::_print_marble_intervals_for_sensor(uint8_t ir_sens_chann
 
 void MarbleCalibration::_print_statistics()
 {
-    // for (int i = 0; i < _ir_sens_board.ir_sens_on_board; i++)
+    // for (int i = 0; i < NUM_IR_SENS_BY_BOARD; i++)
     // {
     //     printf("Sens%d:\n", i);
     //     for (int j = 0; j < (WHITE_MARBLE + 1); j++)
@@ -176,10 +176,10 @@ void MarbleCalibration::_print_statistics()
     // printf("\n");
     // printf("\n");
 
-    for (int i = 0; i < _ir_sens_board.ir_sens_on_board / 2; i++)
+    for (int i = 0; i < NUM_IR_SENS_BY_BOARD / 2; i++)
     {
         _print_marble_intervals_for_sensor(i);
-        _print_marble_intervals_for_sensor(_ir_sens_board.ir_sens_on_board - 1 - i);
+        _print_marble_intervals_for_sensor(NUM_IR_SENS_BY_BOARD - 1 - i);
     }
 }
 
