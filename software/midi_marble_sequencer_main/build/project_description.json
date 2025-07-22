@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "midi_marble_sequencer_main",
-    "project_version":    "6f76669-dirty",
+    "project_version":    "7e794f2-dirty",
     "project_path":       "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main",
     "idf_path":           "F:/programmes/Espressif/v5.3.1/esp-idf",
     "build_dir":          "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/build",
@@ -790,8 +790,8 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__esp_tinyusb" ],
             "file": "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/build/esp-idf/main/libmain.a",
-            "sources": [ "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/main.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/BeatsLEDSnake.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/CalibrationTest.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/CD74HC4067.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/HorizontalCalibration.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/IRSensBoards.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/IRSensReader.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/marble_type.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MarbleDetector.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MasterClock.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MidiController.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MidiMapper.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/PushButton.cpp" ],
-            "include_dirs": [ "." ]
+            "sources": [ "E:/Documents/Programmation/midi_marble_sequencer/software/common_src/CD74HC4067.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/common_src/LEDArray.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/common_src/PushButton.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/main.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/BeatsLEDSnake.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/CalibrationTest.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/HorizontalCalibration.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/IRSensBoards.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/IRSensReader.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/marble_type.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MarbleDetector.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MasterClock.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MidiController.cpp", "E:/Documents/Programmation/midi_marble_sequencer/software/midi_marble_sequencer_main/main/MidiMapper.cpp" ],
+            "include_dirs": [ "E:/Documents/Programmation/midi_marble_sequencer/software/common_src", "." ]
         },
         "mbedtls": {
             "alias": "idf::mbedtls",
@@ -2206,7 +2206,7 @@
             "priv_reqs": [ "esp_timer", "esp_adc", "espressif__esp_tinyusb" ],
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__esp_tinyusb" ],
-            "include_dirs": [ "." ]
+            "include_dirs": [ "E:/Documents/Programmation/midi_marble_sequencer/software/common_src", "." ]
         },
         "espressif__esp_tinyusb": {
             "alias": "idf::espressif__esp_tinyusb",
