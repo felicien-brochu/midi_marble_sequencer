@@ -1,0 +1,5 @@
+general:
+  variable: sensor
+
+curves:
+  - variable: monitored_mean

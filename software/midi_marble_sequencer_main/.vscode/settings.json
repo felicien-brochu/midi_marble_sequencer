@@ -1,0 +1,27 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.espIdfPathWin": "f:\\programmes\\Espressif\\v5.3.1\\esp-idf",
+  "idf.pythonInstallPath": "f:\\programmes\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
+  "idf.openOcdConfigs": [
+    "board/esp32s3-builtin.cfg"
+  ],
+  "idf.portWin": "COM6",
+  "idf.toolsPathWin": "f:\\programmes\\Espressif\\",
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "f:\\programmes\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+    "IDF_CCACHE_ENABLE": "1",
+    "ESP_ROM_ELF_DIR": "f:\\programmes\\Espressif\\tools\\esp-rom-elfs\\20240305/",
+    "IDF_TARGET": "esp32s3"
+  },
+  "idf.flashType": "UART",
+  "clangd.path": "f:\\programmes\\Espressif\\tools\\esp-clang\\16.0.1-fe4f10a809\\esp-clang\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=f:\\programmes\\Espressif\\tools\\xtensa-esp-elf\\esp-13.2.0_20240530\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
+    "--compile-commands-dir=e:\\Documents\\Programmation\\midi_marble_sequencer\\software\\midi_marble_sequencer_main\\build"
+  ],
+  "terminal.integrated.scrollback": 100000,
+  "files.associations": {
+    "cstdint": "cpp"
+  }
+}

@@ -16,9 +16,10 @@ typedef enum
     NO_MARBLE = 0,
     BLACK_MARBLE,
     RED_MARBLE,
-    BLUE_MARBLE,
-    YELLOW_MARBLE,
+    // BLUE_MARBLE,
+    // YELLOW_MARBLE,
     WHITE_MARBLE,
+    NUM_MARBLE_TYPE,
 } marble_type_t;
 
 const char *marble_type_to_string(marble_type_t marble_type);

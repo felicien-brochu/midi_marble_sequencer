@@ -10,10 +10,10 @@ const char *marble_type_to_string(marble_type_t marble_type)
         return " Black  ";
     case RED_MARBLE:
         return " Red    ";
-    case BLUE_MARBLE:
-        return " Blue   ";
-    case YELLOW_MARBLE:
-        return " Yellow ";
+    // case BLUE_MARBLE:
+    //     return " Blue   ";
+    // case YELLOW_MARBLE:
+    //     return " Yellow ";
     case WHITE_MARBLE:
         return " White  ";
     default:
