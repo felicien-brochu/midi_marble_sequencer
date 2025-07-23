@@ -92,17 +92,6 @@ void main_print_all_boards_first_values()
     }
 }
 
-// void main_print_marble_changes()
-// {
-//     MarbleChangeDetector marble_change_detector;
-
-//     while (1)
-//     {
-//         marble_change_detector.update();
-//         vTaskDelay(pdMS_TO_TICKS(40));
-//     }
-// }
-
 void main_test_led_snake()
 {
     BeatsLEDSnake led_snake;
@@ -117,11 +106,6 @@ void main_test_led_snake()
         }
     }
 }
-
-// #ifdef __cplusplus
-//     extern "C"
-// {
-// #endif
 
 extern "C" void app_main()
 {
@@ -138,12 +122,4 @@ extern "C" void app_main()
     // main_calibrate();
 
     // main_test_calibration();
-
-    // main_print_marble_changes();
-
-    // main_test_i2c_master();
 }
-
-// #ifdef __cplusplus
-// }
-// #endif

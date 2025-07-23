@@ -6,4 +6,4 @@ set(include_dirs "${COMMON_SRC_INCLUDE_DIRS}" .)
 
 idf_component_register(SRCS "${srcs}"
                        INCLUDE_DIRS "${include_dirs}"
-                       PRIV_REQUIRES driver esp_timer)
+                       PRIV_REQUIRES driver esp_timer esp_driver_i2c)

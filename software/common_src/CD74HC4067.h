@@ -11,8 +11,8 @@ class CD74HC4067
     void channel(uint8_t channel);
 
   private:
-  	gpio_num_t _address_pins[4];
-	uint8_t _channel;
+    gpio_num_t _address_pins[4];
+    uint8_t _channel;
 };
 
 #endif
