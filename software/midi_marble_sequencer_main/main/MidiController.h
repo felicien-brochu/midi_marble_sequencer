@@ -73,13 +73,13 @@ static const uint8_t s_midi_hs_cfg_desc[] = {
 class MidiController
 {
 public:
-    MidiController(MarbleDetector *marble_detector);
+    MidiController(MarbleDetector &marble_detector);
     void send_eighth_note_midi_notes();
 
     
 private:
     
-    MarbleDetector *_marble_detector;
+    MarbleDetector &_marble_detector;
     MidiMapper _midi_mapper;
 
     uint8_t _notes_on[NUM_IR_SENS_BOARDS * NUM_IR_SENS_BY_BOARD];

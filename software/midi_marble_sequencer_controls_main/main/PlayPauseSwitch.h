@@ -10,7 +10,8 @@ public:
     PlayPauseSwitch();
 
     void update();
+    bool is_pushed();
 
 private:
-    bool _is_pressed;
+    bool _is_pushed;
 };

@@ -3,7 +3,7 @@
 #include <esp_err.h>
 #include <freertos/freeRTOS.h>
 
-MasterClock::MasterClock() : _marble_detector(), _midi_controller(&_marble_detector)
+MasterClock::MasterClock(Sequencer &sequencer) : _sequencer(sequencer), _control_boards_controller(sequencer), _midi_controller(_marble_detector)
 {
     _next_eighth_note_index = 0;
 
@@ -21,7 +21,7 @@ static void _marble_detector_timer_callback(void *master_clock_arg)
 static void _midi_controller_timer_callback(void *master_clock_arg)
 {
     MasterClock *master_clock = (MasterClock *)master_clock_arg;
-    // master_clock->send_midi_notes();
+    master_clock->send_midi_notes();
     master_clock->on_midi_controller_timer_call_end();
 }
 
@@ -53,6 +53,8 @@ void MasterClock::start()
 
     vTaskDelay(pdMS_TO_TICKS(DELAY_DETECT_MARBLES_THEN_SEND));
     ESP_ERROR_CHECK(esp_timer_start_periodic(_midi_controller_timer_handle, DEFAULT_EIGHTH_NOTE_DURATION));
+
+    _control_boards_controller.start_control_boards_task();
 }
 
 void MasterClock::detect_marbles()

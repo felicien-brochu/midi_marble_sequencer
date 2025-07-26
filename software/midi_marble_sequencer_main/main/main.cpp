@@ -9,6 +9,19 @@
 #include "CalibrationTest.h"
 #include "BeatsLEDSnake.h"
 #include "MasterClock.h"
+#include "Sequencer.h"
+
+void main_midi_marble_sequencer()
+{
+    Sequencer sequencer;
+    MasterClock master_clock(sequencer);
+    master_clock.start();
+
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+}
 
 void main_calibrate()
 {
@@ -27,17 +40,6 @@ void main_test_calibration()
     {
         calibration_test.update();
         vTaskDelay(pdMS_TO_TICKS(10));
-    }
-}
-
-void main_midi_marble_sequencer()
-{
-    MasterClock master_clock;
-    master_clock.start();
-
-    while (1)
-    {
-        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 

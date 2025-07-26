@@ -4,7 +4,7 @@ RotaryButtonsController::RotaryButtonsController(adc_oneshot_unit_handle_t &adc_
 {
     for (size_t i = 0; i < ROTARY_BUTTONS_NUM; i++)
     {
-        _button_states[i] = ROTARY_BUTTON_UNKNOWN;
+        _rotary_buttons_states[i] = ROTARY_BUTTON_UNKNOWN;
         _state_change_events_pending[i] = 0;
     }
 
@@ -22,13 +22,24 @@ void RotaryButtonsController::update()
     {
         rotary_button_state_t rotary_button_state = _read_state_from_adc(rotary_button_index);
 
-        if (rotary_button_state != _button_states[rotary_button_index])
+        if (rotary_button_state != _rotary_buttons_states[rotary_button_index])
         {
-            _button_states[rotary_button_index] = rotary_button_state;
-
+            _rotary_buttons_states[rotary_button_index] = rotary_button_state;
             _state_change_events_pending[rotary_button_index]++;
-            printf("ROTARY_BUTTON %d changed state %d times. Current state: %d\n", rotary_button_index, _state_change_events_pending[rotary_button_index], rotary_button_state);
         }
+    }
+}
+
+rotary_button_state_t *RotaryButtonsController::get_rotary_buttons_states()
+{
+    return _rotary_buttons_states;
+}
+
+void RotaryButtonsController::consume_events()
+{
+    for (size_t i = 0; i < ROTARY_BUTTONS_NUM; i++)
+    {
+        _state_change_events_pending[i] = 0;
     }
 }
 

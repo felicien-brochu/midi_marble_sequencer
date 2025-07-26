@@ -8,6 +8,7 @@ PlayPauseLED::PlayPauseLED()
     gpio_pulldown_dis(PLAY_PAUSE_LED_GPIO);
 
     _is_enabled = false;
+    disable();
 }
 
 bool PlayPauseLED::is_enabled()
@@ -33,9 +34,11 @@ void PlayPauseLED::set_enabled(bool enabled)
 void PlayPauseLED::enable()
 {
     gpio_set_level(PLAY_PAUSE_LED_GPIO, 1);
+    _is_enabled = true;
 }
 
 void PlayPauseLED::disable()
 {
     gpio_set_level(PLAY_PAUSE_LED_GPIO, 0);
+    _is_enabled = false;
 }

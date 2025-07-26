@@ -1,5 +1,6 @@
 #include <esp_timer.h>
 
+#include "ControlBoardsController.h"
 #include "MidiController.h"
 #include "MarbleDetector.h"
 #include "BeatsLEDSnake.h"
@@ -13,7 +14,7 @@
 class MasterClock
 {
 public:
-    MasterClock();
+    MasterClock(Sequencer &sequencer);
     
     void start();
     void detect_marbles();
@@ -23,7 +24,10 @@ public:
     void on_midi_controller_timer_call_end();
 
     
-    private:
+private:
+    Sequencer &_sequencer;
+    ControlBoardsController _control_boards_controller;
+
     MarbleDetector _marble_detector;
     MidiController _midi_controller;
     BeatsLEDSnake _led_snake;

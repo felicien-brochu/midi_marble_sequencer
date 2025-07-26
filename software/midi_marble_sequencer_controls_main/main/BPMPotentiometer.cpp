@@ -14,9 +14,14 @@ BPMPotentiometer::BPMPotentiometer(adc_oneshot_unit_handle_t &adc_handle) : _adc
 void BPMPotentiometer::update()
 {
     uint16_t adc_value = _read_value_from_adc();
-    _value = adc_value;
+    _adc_value = adc_value;
+}
 
-    printf("> BPMPotentiometer: %d\n", adc_value);
+float BPMPotentiometer::get_normalized_value()
+{
+    float normalized_value = ((float) _adc_value - BPM_POT_ADC_VALUE_MIN) / (BPM_POT_ADC_VALUE_MAX - BPM_POT_ADC_VALUE_MIN);
+
+    return normalized_value;
 }
 
 uint16_t BPMPotentiometer::_read_value_from_adc()

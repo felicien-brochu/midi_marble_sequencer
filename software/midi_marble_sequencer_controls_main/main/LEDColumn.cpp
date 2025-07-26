@@ -1,10 +1,8 @@
-#pragma once
-
 #include "LEDColumn.h"
 
 LEDColumn::LEDColumn() {
     // Init LED gpios
-    for (size_t i = 0; i < LED_COLUMN_NUM_LED; i++)
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
         gpio_num_t gpio = _led_gpios[i];
         gpio_reset_pin(gpio);
@@ -13,10 +11,19 @@ LEDColumn::LEDColumn() {
     }
 }
 
+void LEDColumn::update_leds(bool *leds_enabled)
+{
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
+    {
+        gpio_num_t gpio = _led_gpios[i];
+        gpio_set_level(gpio, !leds_enabled[i]);
+    }
+    
+}
 
 void LEDColumn::enable_led(uint8_t index)
 {
-    if (index >= LED_COLUMN_NUM_LED)
+    if (index >= SEQUENCER_TRACKS_NUM)
     {
         return;
     }
@@ -27,7 +34,7 @@ void LEDColumn::enable_led(uint8_t index)
 
 void LEDColumn::disable_led(uint8_t index)
 {
-    if (index >= LED_COLUMN_NUM_LED)
+    if (index >= SEQUENCER_TRACKS_NUM)
     {
         return;
     }
@@ -38,7 +45,7 @@ void LEDColumn::disable_led(uint8_t index)
 
 void LEDColumn::enable_all_leds()
 {
-    for (size_t i = 0; i < LED_COLUMN_NUM_LED; i++)
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
         gpio_num_t gpio = _led_gpios[i];
         gpio_set_level(gpio, false);
@@ -47,7 +54,7 @@ void LEDColumn::enable_all_leds()
 
 void LEDColumn::disable_all_leds()
 {
-    for (size_t i = 0; i < LED_COLUMN_NUM_LED; i++)
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
         gpio_num_t gpio = _led_gpios[i];
         gpio_set_level(gpio, true);

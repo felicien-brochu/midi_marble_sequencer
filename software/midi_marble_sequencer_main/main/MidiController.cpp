@@ -2,10 +2,8 @@
 #include <class/midi/midi_device.h>
 
 
-MidiController::MidiController(MarbleDetector *marble_detector)
+MidiController::MidiController(MarbleDetector &marble_detector) : _marble_detector(marble_detector)
 {
-    _marble_detector = marble_detector;
-
     tinyusb_config_t const tusb_cfg = {
         .device_descriptor = NULL, // If device_descriptor is NULL, tinyusb_driver_install() will use Kconfig
         .string_descriptor = s_str_desc,
@@ -25,7 +23,7 @@ MidiController::MidiController(MarbleDetector *marble_detector)
 void MidiController::send_eighth_note_midi_notes()
 {
     uint8_t midi_notes[NUM_VALUE_BY_COLUMN];
-    size_t num_notes = _midi_mapper.eighth_note_marble_types_to_midi_notes(midi_notes, _marble_detector->get_current_eighth_note_marbles());
+    size_t num_notes = _midi_mapper.eighth_note_marble_types_to_midi_notes(midi_notes, _marble_detector.get_current_eighth_note_marbles());
 
     _send_notes_off();
     _send_notes_on(midi_notes, num_notes);

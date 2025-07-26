@@ -7,17 +7,20 @@ PlayPauseSwitch::PlayPauseSwitch()
     gpio_pullup_dis(PLAY_PAUSE_SWITCH_GPIO);
     gpio_pulldown_dis(PLAY_PAUSE_SWITCH_GPIO);
 
-    _is_pressed = false;
+    _is_pushed = false;
 }
 
 void PlayPauseSwitch::update()
 {
     bool switch_level = (bool) gpio_get_level(PLAY_PAUSE_SWITCH_GPIO);
 
-    if (switch_level != _is_pressed)
+    if (switch_level != _is_pushed)
     {
-        _is_pressed = switch_level;
-
-        printf("PlayPauseSwitch changed state: %d\n", switch_level);
+        _is_pushed = switch_level;
     }
+}
+
+bool PlayPauseSwitch::is_pushed()
+{
+    return _is_pushed;
 }
