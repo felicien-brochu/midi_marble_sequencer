@@ -28,7 +28,7 @@ void LEDArray::_init_timer()
     const esp_timer_create_args_t periodic_timer_args = {
         .callback = &_led_array_timer_callback,
         .arg = this,
-        .dispatch_method = ESP_TIMER_ISR,
+        .dispatch_method = ESP_TIMER_TASK,
         .name = "LEDArray"};
 
     esp_timer_handle_t periodic_timer;

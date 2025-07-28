@@ -25,15 +25,6 @@ void MarbleDetector::_convert_eighth_note_values_to_marble_types(uint8_t eighth_
     {
         marble_type_t marble_type = _get_marble_type(i, _get_thresholds_for_eighth_note_value(eighth_note_index, i));
         _eighth_note_marble_types[i] = marble_type;
-
-        // if (eighth_note_index % 2 == 1)
-        // {
-        //     _eighth_note_marble_types[NUM_VALUE_BY_COLUMN - 1 - i] = marble_type;
-        // }
-        // else
-        // {
-        //     _eighth_note_marble_types[i] = marble_type;
-        // }
     }
 }
 

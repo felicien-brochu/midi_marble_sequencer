@@ -8,7 +8,7 @@
 
 #define I2C_MASTER_SCL_GPIO GPIO_NUM_4
 #define I2C_MASTER_SDA_GPIO GPIO_NUM_5
-#define I2C_MASTER_TIMER_PERIOD 20000 // in us
+#define I2C_MASTER_TIMER_PERIOD 40000 // in us
 // #define I2C_MASTER_TIMER_PERIOD 600000 // in us
 
 class ControlBoardsController

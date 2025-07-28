@@ -15,11 +15,11 @@ void main_midi_marble_sequencer()
 {
     Sequencer sequencer;
     MasterClock master_clock(sequencer);
-    master_clock.start();
 
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(200));
+        // esp_timer_dump(stdout);
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 

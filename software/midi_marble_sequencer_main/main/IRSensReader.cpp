@@ -5,7 +5,7 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 
-static const char *TAG = "IR_SENS_BOARD_READER_ONE_SHOT";
+static const char *TAG = "IR_SENS_BOARD_READER";
 
 static int _adc_raw[1];
 

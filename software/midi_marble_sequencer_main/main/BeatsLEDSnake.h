@@ -16,4 +16,12 @@ class BeatsLEDSnake : public LEDArray
 {
 public:
     BeatsLEDSnake();
+    
+    void set_eighth_note_index(uint8_t eighth_note_index);
+    void set_enabled(bool enabled);
+    void update();
+
+private:
+    uint8_t _eighth_note_index = 0;
+    bool _enabled = false;
 };

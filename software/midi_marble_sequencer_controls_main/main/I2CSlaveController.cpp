@@ -44,36 +44,19 @@ void I2CSlaveController::main_task()
 
         if (rx_success) {
             memcpy(&_controls_main_display, rx_done_event_data.buffer, sizeof(_controls_main_display));
-            
-            // printf("RECEIVED _controls_main_display: play_pause_button: %d, tracks_led_enabled: %d, %d, %d, %d\n", _controls_main_display.play_pause_led_enabled, _controls_main_display.tracks_led_enabled[0], _controls_main_display.tracks_led_enabled[1], _controls_main_display.tracks_led_enabled[2], _controls_main_display.tracks_led_enabled[3]);
-            
 
             _display_controller.update(_controls_main_display);
             _controls_main_value = _interaction_controller.get_value();
-
-            // printf("SEND _controls_main_value: play_pause_switch_pushed: %d, push_buttons: %d, %d, %d, %d, %d, %d, %d, %d\n", _controls_main_value.play_pause_switch_pushed, 
-            //     _controls_main_value.tracks_push_buttons[0].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[1].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[2].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[3].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[4].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[5].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[6].click_events_pending,
-            //     _controls_main_value.tracks_push_buttons[7].click_events_pending
-            // );
 
             memcpy(_write_buffer, &_controls_main_value, sizeof(_controls_main_value));
             ESP_ERROR_CHECK(i2c_slave_transmit(_slave_handle, _write_buffer, sizeof(_controls_main_value), -1));
 
             _interaction_controller.consume_events();
-
-            // printf(".");
         }
         else
         {
             printf("QUEUE FAIL\n");
         }
-        // vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

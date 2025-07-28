@@ -4,7 +4,6 @@
 #include <esp_err.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <esp_timer.h>
 
 static void _control_boards_controller_task(void *control_boards_controller_arg)
 {
@@ -46,17 +45,8 @@ ControlBoardsController::ControlBoardsController(Sequencer &sequencer) : _sequen
 
 void ControlBoardsController::start_control_boards_task()
 {
-    // const esp_timer_create_args_t periodic_timer_args = {
-    //     .callback = &_control_boards_controller_task,
-    //     .arg = this,
-    //     .dispatch_method = ESP_TIMER_TASK,
-    //     .name = "ControlBoardsController"};
-
-    // esp_timer_handle_t periodic_timer;
-    // ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    // ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, I2C_MASTER_TIMER_PERIOD));
     TaskHandle_t control_boards_task_handle;
-    xTaskCreate(_control_boards_controller_task, "ControlBoardsController", 10000, this, 3, &control_boards_task_handle);
+    xTaskCreate(_control_boards_controller_task, "ControlBoardsController", 10000, this, 1, &control_boards_task_handle);
 }
 
 void ControlBoardsController::main_task()
@@ -66,18 +56,12 @@ void ControlBoardsController::main_task()
         controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
         memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
 
-        // printf("####TRANSMIT play_led: %d\n", controls_main_display.play_pause_led_enabled);
-
         ESP_ERROR_CHECK(i2c_master_transmit_receive(_controls_main_device_handle, _write_buffer, sizeof(controls_main_display_t), _read_buffer, sizeof(controls_main_value_t), -1));
-
         
         controls_main_value_t controls_main_value;
         memcpy(&controls_main_value, _read_buffer, sizeof(controls_main_value_t));
 
         _sequencer.handle_controls_main_event(controls_main_value);
-
-        // printf(".");
-        // printf("####RECEIVE play_led: %d\n", controls_main_value.play_pause_switch_pushed);
         
         vTaskDelay(pdMS_TO_TICKS(I2C_MASTER_TIMER_PERIOD / 1000));
     }
