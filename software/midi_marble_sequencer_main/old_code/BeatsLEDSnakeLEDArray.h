@@ -1,7 +1,7 @@
 #pragma once
 
+#include "LEDArray.h"
 #include "IRSensBoards.h"
-#include "CD74HC4067.h"
 
 #define BEATS_SNAKE_LED_POWER_PIN GPIO_NUM_10
 
@@ -12,7 +12,7 @@
 
 #define BEATS_SNAKE_NUM_LEDS NUM_IR_SENS_BOARDS
 
-class BeatsLEDSnake
+class BeatsLEDSnake : public LEDArray
 {
 public:
     BeatsLEDSnake();
@@ -22,7 +22,6 @@ public:
     void update();
 
 private:
-    CD74HC4067 _mux;
-    uint8_t _eighth_note_index;
-    bool _enabled;
+    uint8_t _eighth_note_index = 0;
+    bool _enabled = false;
 };

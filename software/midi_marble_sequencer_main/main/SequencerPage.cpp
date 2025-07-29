@@ -1,6 +1,9 @@
 #include "SequencerPage.h"
 
 #include <cstring>
+#include <esp_log.h>
+
+static const char *TAG = "SEQUENCER_PAGE";
 
 
 SequencerPage::SequencerPage()
@@ -109,7 +112,6 @@ uint8_t SequencerPage::get_first_playable_eighth_note_index_after(uint8_t eighth
         return eighth_note_index + 1;
     }
 
-
     for (size_t i = measure_index + 1; i < SEQUENCER_MEASURES_NUM; i++)
     {
         if (_measures_states[i] != MEASURE_STATE_SKIP)
@@ -119,4 +121,9 @@ uint8_t SequencerPage::get_first_playable_eighth_note_index_after(uint8_t eighth
     }
 
     return SEQUENCER_EIGHTH_NOTE_NUM;
+}
+
+void SequencerPage::set_measures_states(const measure_state_t *measures_states)
+{
+    memcpy(_measures_states, measures_states, SEQUENCER_MEASURES_NUM * sizeof(measure_state_t));
 }

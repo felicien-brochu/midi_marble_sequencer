@@ -39,18 +39,26 @@ ControlBoardsController::ControlBoardsController(Sequencer &sequencer) : _sequen
         }
     };
 
-    ESP_ERROR_CHECK(i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1));
     ESP_ERROR_CHECK(i2c_master_bus_add_device(_i2c_bus_handle, &controls_main_device_config, &_controls_main_device_handle));
 }
 
 void ControlBoardsController::start_control_boards_task()
 {
     TaskHandle_t control_boards_task_handle;
-    xTaskCreate(_control_boards_controller_task, "ControlBoardsController", 10000, this, 1, &control_boards_task_handle);
+    xTaskCreate(_control_boards_controller_task, "ControlBoardsController", 3500, this, 1, &control_boards_task_handle);
 }
 
 void ControlBoardsController::main_task()
 {
+    while (true)
+    {
+        esp_err_t err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
+        if (err == ESP_OK)
+        {
+            break;
+        }
+    }
+
     while(true)
     {
         controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();

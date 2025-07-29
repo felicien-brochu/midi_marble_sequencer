@@ -75,6 +75,7 @@ class MidiController
 public:
     MidiController(MarbleDetector &marble_detector);
     void send_eighth_note_midi_notes();
+    void send_notes_off();
 
     
 private:
@@ -86,5 +87,4 @@ private:
     size_t _notes_on_size;
     
     void _send_notes_on(uint8_t *midi_notes, size_t num_notes);
-    void _send_notes_off();
 };

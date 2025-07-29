@@ -25,7 +25,7 @@ void MidiController::send_eighth_note_midi_notes()
     uint8_t midi_notes[NUM_VALUE_BY_COLUMN];
     size_t num_notes = _midi_mapper.eighth_note_marble_types_to_midi_notes(midi_notes, _marble_detector.get_current_eighth_note_marbles());
 
-    _send_notes_off();
+    send_notes_off();
     _send_notes_on(midi_notes, num_notes);
 }
 
@@ -49,7 +49,7 @@ void MidiController::_send_notes_on(uint8_t *midi_notes, size_t num_notes)
     }
 }
 
-void MidiController::_send_notes_off()
+void MidiController::send_notes_off()
 {
     if (tud_midi_mounted())
     {
@@ -62,6 +62,7 @@ void MidiController::_send_notes_off()
             uint8_t note_off[3] = {note_off_plus_channel, _notes_on[i], 0};
             tud_midi_stream_write(midi_cable_num, note_off, 3);
         }
+
+        _notes_on_size = 0;
     }
-    _notes_on_size = 0;
 }

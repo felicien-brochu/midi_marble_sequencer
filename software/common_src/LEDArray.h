@@ -4,6 +4,7 @@
 #include "CD74HC4067.h"
 
 #define LED_ARRAY_TIMER_PERIOD 800 //> Period of the timer in microseconds
+#define LED_ARRAY_LEDS_MAX_NUM 16
 
 class LEDArray
 {
@@ -25,7 +26,7 @@ private:
     CD74HC4067 _mux;
     uint8_t _last_updated_led;
 
-    bool _enabled_leds[16];
+    bool _enabled_leds[LED_ARRAY_LEDS_MAX_NUM];
 
 
     void _init_timer();

@@ -62,7 +62,6 @@ bool Sequencer::is_playing()
 
 uint64_t Sequencer::get_eighth_note_duration()
 {
-    // printf("BPM: %f, 8thnote duration: %lld\n", _bpm, (uint64_t) (60000000. / _bpm));
     return (uint64_t) (60000000. / _bpm);
 }
 
@@ -73,7 +72,7 @@ uint8_t Sequencer::get_current_eighth_note_index()
 
 void Sequencer::next_eighth_note()
 {
-    SequencerPage current_page = _pages[_current_page_index];
+    SequencerPage &current_page = _pages[_current_page_index];
     
     if (!current_page.has_playable_eighth_notes_after(_current_eighth_note_index))
     {
@@ -132,6 +131,8 @@ void Sequencer::_set_playing_from_play_pause_switch(bool play_pause_switch_pushe
 
 void Sequencer::_start_playing()
 {
+    _current_page_index = _get_first_played_page_index();
+    _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
     _is_playing = true;
     _sequencer_callback(SEQUENCER_CB_START_PLAYING, NULL, _sequencer_callback_context);
 }
@@ -139,7 +140,7 @@ void Sequencer::_start_playing()
 void Sequencer::_stop_playing()
 {
     _current_page_index = _get_first_played_page_index();
-    _current_eighth_note_index = 0;
+    _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
     _is_playing = false;
     _sequencer_callback(SEQUENCER_CB_STOP_PLAYING, NULL, _sequencer_callback_context);
 }
@@ -200,6 +201,7 @@ inline measure_state_t _rotary_button_state_to_measure_state(const rotary_button
 
 void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states)
 {
+
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
         measure_state_t measure_state = _rotary_button_state_to_measure_state(rotary_buttons_states[i]);
@@ -208,4 +210,7 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
             _measures_states[i] = measure_state;
         }
     }
+    
+    SequencerPage &edited_page = _pages[_edited_page_index];
+    edited_page.set_measures_states(_measures_states);
 }

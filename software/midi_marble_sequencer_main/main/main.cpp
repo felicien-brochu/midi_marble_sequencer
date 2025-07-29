@@ -102,8 +102,8 @@ void main_test_led_snake()
     {
         for (size_t i = 0; i < NUM_IR_SENS_BOARDS; i++)
         {
-            led_snake.disable_all_leds();
-            led_snake.enable_led(i);
+            led_snake.set_eighth_note_index(i * 2);
+            led_snake.update();
             vTaskDelay(pdMS_TO_TICKS(600));
         }
     }

@@ -26,8 +26,9 @@ public:
     bool has_playable_eighth_notes();
     uint8_t get_first_playable_eighth_note_index();
     uint8_t get_first_playable_eighth_note_index_after(uint8_t eighth_note_index);
+    void set_measures_states(const measure_state_t *measures_states);
 
-private:
+// private:
     marble_type_t _marble_types[SEQUENCER_TRACKS_NUM * SEQUENCER_EIGHTH_NOTE_NUM];
     measure_state_t _measures_states[SEQUENCER_MEASURES_NUM];
 };

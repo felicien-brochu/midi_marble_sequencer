@@ -102,13 +102,14 @@ void MasterClock::schedule_next_eighth_note_timers()
 
 void MasterClock::start_playing()
 {
-    _last_midi_controller_timer_expiration = esp_timer_get_time();
+    _last_midi_controller_timer_expiration = 0;
     
     _init_marble_detector_timer();
     _init_midi_controller_timer();
     ESP_ERROR_CHECK(esp_timer_start_once(_marble_detector_timer_handle, 0));
     ESP_ERROR_CHECK(esp_timer_start_once(_midi_controller_timer_handle, DELAY_DETECT_MARBLES_THEN_SEND));
-
+    
+    _led_snake.set_eighth_note_index(_sequencer.get_current_eighth_note_index());
     _led_snake.set_enabled(true);
 }
 
@@ -125,6 +126,8 @@ void MasterClock::stop_playing()
 
     ESP_ERROR_CHECK(esp_timer_delete(_marble_detector_timer_handle));
     ESP_ERROR_CHECK(esp_timer_delete(_midi_controller_timer_handle));
+
+    _midi_controller.send_notes_off();
 
     _led_snake.set_enabled(false);
     _led_snake.update();
