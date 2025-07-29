@@ -1,8 +1,8 @@
 #include "MasterClock.h"
 
 #include <esp_err.h>
-#include <freertos/freeRTOS.h>
 #include <esp_log.h>
+#include <freertos/freeRTOS.h>
 
 static const char *TAG = "MASTER_CLOCK";
 
@@ -21,10 +21,13 @@ static void sequencer_callback(sequencer_callback_type_t callback_type, void *ar
     case SEQUENCER_CB_BPM_CHANGE:
         master_clock->handle_bpm_change_event();
         break;
+    case SEQUENCER_CB_NEW_LOCK_EVENT:
+        master_clock->handle_new_lock_event();
+        break;
     }
 }
 
-MasterClock::MasterClock(Sequencer &sequencer) : _sequencer(sequencer), _control_boards_controller(sequencer), _midi_controller(_marble_detector)
+MasterClock::MasterClock(Sequencer &sequencer) : _sequencer(sequencer), _control_boards_controller(sequencer), _midi_controller(_sequencer)
 {
     _sequencer.set_sequencer_callback(sequencer_callback, this);
     _control_boards_controller.start_control_boards_task();
@@ -41,6 +44,7 @@ static void _midi_controller_timer_callback(void *master_clock_arg)
 {
     MasterClock *master_clock = (MasterClock *) master_clock_arg;
     master_clock->on_midi_controller_timer_call_start();
+    master_clock->schedule_read_newly_locked_measures();
     master_clock->schedule_next_eighth_note_timers();
     master_clock->send_midi_notes();
     master_clock->on_midi_controller_timer_call_end();
@@ -78,14 +82,14 @@ void MasterClock::schedule_next_eighth_note_timers()
     int64_t current_time = esp_timer_get_time();
     int64_t midi_controller_timer_timeout = _last_midi_controller_timer_expiration + eighth_note_duration - current_time;
 
-    if (midi_controller_timer_timeout < DELAY_DETECT_MARBLES_THEN_SEND)
+    if (midi_controller_timer_timeout < DETECT_EIGHTH_NOTE_MARBLES_DURATION)
     {
-        midi_controller_timer_timeout = DELAY_DETECT_MARBLES_THEN_SEND;
+        midi_controller_timer_timeout = DETECT_EIGHTH_NOTE_MARBLES_DURATION;
     }
     
     if (esp_timer_is_active(_marble_detector_timer_handle) && esp_timer_is_active(_midi_controller_timer_handle))
     {
-        ESP_ERROR_CHECK(esp_timer_restart(_marble_detector_timer_handle, midi_controller_timer_timeout - DELAY_DETECT_MARBLES_THEN_SEND));
+        ESP_ERROR_CHECK(esp_timer_restart(_marble_detector_timer_handle, midi_controller_timer_timeout - DETECT_EIGHTH_NOTE_MARBLES_DURATION));
         ESP_ERROR_CHECK(esp_timer_restart(_midi_controller_timer_handle, midi_controller_timer_timeout));
     }
     else if (!esp_timer_is_active(_marble_detector_timer_handle) && !esp_timer_is_active(_midi_controller_timer_handle))
@@ -95,7 +99,7 @@ void MasterClock::schedule_next_eighth_note_timers()
         _init_marble_detector_timer();
         _init_midi_controller_timer();
 
-        ESP_ERROR_CHECK(esp_timer_start_once(_marble_detector_timer_handle, midi_controller_timer_timeout - DELAY_DETECT_MARBLES_THEN_SEND));
+        ESP_ERROR_CHECK(esp_timer_start_once(_marble_detector_timer_handle, midi_controller_timer_timeout - DETECT_EIGHTH_NOTE_MARBLES_DURATION));
         ESP_ERROR_CHECK(esp_timer_start_once(_midi_controller_timer_handle, midi_controller_timer_timeout));
     }
 }
@@ -107,7 +111,7 @@ void MasterClock::start_playing()
     _init_marble_detector_timer();
     _init_midi_controller_timer();
     ESP_ERROR_CHECK(esp_timer_start_once(_marble_detector_timer_handle, 0));
-    ESP_ERROR_CHECK(esp_timer_start_once(_midi_controller_timer_handle, DELAY_DETECT_MARBLES_THEN_SEND));
+    ESP_ERROR_CHECK(esp_timer_start_once(_midi_controller_timer_handle, DETECT_EIGHTH_NOTE_MARBLES_DURATION));
     
     _led_snake.set_eighth_note_index(_sequencer.get_current_eighth_note_index());
     _led_snake.set_enabled(true);
@@ -143,13 +147,67 @@ void MasterClock::update_bpm()
 
 void MasterClock::detect_marbles()
 {
-    marble_type_t *marble_types = _marble_detector.detect_eighth_note_marbles(_sequencer.get_current_eighth_note_index());
-
-    for (size_t i = 0; i < NUM_VALUE_BY_COLUMN; i++)
+    if (!_sequencer.is_current_eighth_note_locked())
     {
-        if (marble_types[i] != NO_MARBLE)
+        marble_type_t marble_types[SEQUENCER_TRACKS_NUM];
+        _marble_detector.detect_eighth_note_marbles(_sequencer.get_current_eighth_note_index(), marble_types);
+
+        _sequencer.set_eighth_note_marble_types(marble_types);
+
+        for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
         {
-            ESP_LOGI(TAG, "%d[%d]: %s", _sequencer.get_current_eighth_note_index(), i, marble_type_to_string(marble_types[i]));
+            if (marble_types[i] != NO_MARBLE)
+            {
+                ESP_LOGI(TAG, "%d[%d]: %s", _sequencer.get_current_eighth_note_index(), i, marble_type_to_string(marble_types[i]));
+            }
+        }
+    }
+}
+
+static void read_newly_locked_measures_task(void *master_clock_arg)
+{
+    MasterClock *master_clock = (MasterClock *) master_clock_arg;
+    master_clock->read_newly_locked_measures();
+    master_clock->schedule_read_newly_locked_measures();
+
+    vTaskDelete(NULL);
+}
+
+void MasterClock::schedule_read_newly_locked_measures()
+{
+    if (_sequencer.has_locked_measure_events_pending())
+    {
+        int64_t midi_controller_next_alarm;
+        
+        if (esp_timer_is_active(_midi_controller_timer_handle))
+        {
+            midi_controller_next_alarm = esp_timer_get_next_alarm();
+        }
+        else
+        {
+            midi_controller_next_alarm = esp_timer_get_time() + _sequencer.get_eighth_note_duration();
+        }
+        
+        const int64_t min_duration_before_midi_send = DETECT_MEASURE_MARBLES_DURATION + DETECT_EIGHTH_NOTE_MARBLES_DURATION;
+        if (midi_controller_next_alarm - esp_timer_get_time() > min_duration_before_midi_send)
+        {
+            xTaskCreate(read_newly_locked_measures_task, "read_newly_locked_measures", 3600, this, 1, &_read_locked_measures_task_handle);
+        }
+    }
+}
+
+void MasterClock::read_newly_locked_measures()
+{
+    measure_lock_event_t **measure_lock_events = _sequencer.get_measure_lock_events();
+    for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
+    {
+        measure_lock_event_t *event = measure_lock_events[i];
+        if (event != NULL)
+        {
+            marble_type_t measure_marble_types[SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM * SEQUENCER_TRACKS_NUM];
+            _marble_detector.detect_measure_marbles(event->measure_index, measure_marble_types);
+            _sequencer.set_locked_measure_marble_types(event, measure_marble_types);
+            break;
         }
     }
 }
@@ -162,7 +220,6 @@ void MasterClock::send_midi_notes()
 void MasterClock::on_marble_detector_timer_call_end()
 {
     _led_snake.set_eighth_note_index(_sequencer.get_current_eighth_note_index());
-    _sequencer.next_eighth_note();
 }
 
 void MasterClock::on_midi_controller_timer_call_start()
@@ -173,6 +230,7 @@ void MasterClock::on_midi_controller_timer_call_start()
 void MasterClock::on_midi_controller_timer_call_end()
 {
     _led_snake.update();
+    _sequencer.next_eighth_note();
 }
 
 void MasterClock::handle_start_playing_event()
@@ -188,4 +246,9 @@ void MasterClock::handle_stop_playing_event()
 void MasterClock::handle_bpm_change_event()
 {
     update_bpm();
+}
+
+void MasterClock::handle_new_lock_event()
+{
+    schedule_read_newly_locked_measures();
 }

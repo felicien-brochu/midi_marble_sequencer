@@ -27,8 +27,13 @@ public:
     uint8_t get_first_playable_eighth_note_index();
     uint8_t get_first_playable_eighth_note_index_after(uint8_t eighth_note_index);
     void set_measures_states(const measure_state_t *measures_states);
+    measure_state_t *get_measures_states();
+    void set_eighth_note_marble_types(uint8_t eighth_note_index, marble_type_t *marble_types);
+    void get_eighth_note_marble_types(uint8_t eighth_note_index, marble_type_t *marble_types);
+    measure_state_t get_eighth_note_measure_state(uint8_t eighth_note_index);
+    void set_measure_marble_types(uint8_t measure_index, marble_type_t *measure_marble_types);
 
-// private:
+private:
     marble_type_t _marble_types[SEQUENCER_TRACKS_NUM * SEQUENCER_EIGHTH_NOTE_NUM];
     measure_state_t _measures_states[SEQUENCER_MEASURES_NUM];
 };

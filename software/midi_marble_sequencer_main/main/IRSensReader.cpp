@@ -1,4 +1,5 @@
 #include "IRSensReader.h"
+#include "sequencer_config.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -28,13 +29,16 @@ IRSensReader::IRSensReader(IRSensBoards *ir_sens_boards)
 
 void IRSensReader::read_column(uint32_t *_values_off, uint32_t *_values_on, uint8_t column_index)
 {
+    uint64_t t0 = esp_timer_get_time();
     uint8_t board_index = column_index / 2;
 
-    static const uint8_t _even_column_sensors[NUM_VALUE_BY_COLUMN] = {0, 1, 2, 3, 4, 5, 6, 7};
-    static const uint8_t _odd_column_sensors[NUM_VALUE_BY_COLUMN] = {15, 14, 13, 12, 11, 10, 9, 8};
+    static const uint8_t _even_column_sensors[SEQUENCER_TRACKS_NUM] = {0, 1, 2, 3, 4, 5, 6, 7};
+    static const uint8_t _odd_column_sensors[SEQUENCER_TRACKS_NUM] = {15, 14, 13, 12, 11, 10, 9, 8};
 
     const uint8_t *column_sensors = ((column_index % 2 == 1) ? _odd_column_sensors : _even_column_sensors);
-    read_sub_board_values(_values_off, _values_on, board_index, column_sensors, NUM_VALUE_BY_COLUMN, IR_SENSOR_MULTISAMPLING);
+    read_sub_board_values(_values_off, _values_on, board_index, column_sensors, SEQUENCER_TRACKS_NUM, IR_SENSOR_MULTISAMPLING);
+
+    ESP_LOGD(TAG, "read_column time: %llu us", esp_timer_get_time() - t0);
 }
 
 void IRSensReader::read_sub_board_values(uint32_t *values_off, uint32_t *values_on, uint8_t board_index, const uint8_t *sensor_list, size_t sensor_list_size, int multisampling)

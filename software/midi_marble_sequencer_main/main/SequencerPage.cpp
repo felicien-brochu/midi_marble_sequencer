@@ -127,3 +127,29 @@ void SequencerPage::set_measures_states(const measure_state_t *measures_states)
 {
     memcpy(_measures_states, measures_states, SEQUENCER_MEASURES_NUM * sizeof(measure_state_t));
 }
+
+measure_state_t *SequencerPage::get_measures_states()
+{
+    return _measures_states;
+}
+
+void SequencerPage::set_eighth_note_marble_types(uint8_t eighth_note_index, marble_type_t *marble_types)
+{
+    memcpy(&_marble_types[eighth_note_index * SEQUENCER_TRACKS_NUM], marble_types, SEQUENCER_TRACKS_NUM * sizeof(marble_type_t));
+}
+
+void SequencerPage::get_eighth_note_marble_types(uint8_t eighth_note_index, marble_type_t *marble_types)
+{
+    memcpy(marble_types, &_marble_types[eighth_note_index * SEQUENCER_TRACKS_NUM], SEQUENCER_TRACKS_NUM * sizeof(marble_type_t));
+}
+
+measure_state_t SequencerPage::get_eighth_note_measure_state(uint8_t eighth_note_index)
+{
+    return _measures_states[_eighth_note_index_to_measure_index(eighth_note_index)];
+}
+
+void SequencerPage::set_measure_marble_types(uint8_t measure_index, marble_type_t *measure_marble_types)
+{
+    const uint8_t marbles_by_measure = SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM * SEQUENCER_TRACKS_NUM;
+    memcpy(&_marble_types[measure_index * marbles_by_measure], measure_marble_types, marbles_by_measure * sizeof(marble_type_t));
+}

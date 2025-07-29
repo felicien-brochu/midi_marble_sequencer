@@ -14,11 +14,17 @@
 typedef enum {
     SEQUENCER_CB_START_PLAYING = 0,
     SEQUENCER_CB_STOP_PLAYING,
-    SEQUENCER_CB_BPM_CHANGE
+    SEQUENCER_CB_BPM_CHANGE,
+    SEQUENCER_CB_NEW_LOCK_EVENT
 } sequencer_callback_type_t;
 
 typedef void (* sequencer_callback_t)(sequencer_callback_type_t callback_type, void *arg, void *context);
 
+
+typedef struct {
+    uint8_t page_index;
+    uint8_t measure_index;
+} measure_lock_event_t;
 
 
 class Sequencer
@@ -35,6 +41,12 @@ public:
     uint8_t get_current_eighth_note_index();
     void next_eighth_note();
     void next_page();
+    void set_eighth_note_marble_types(marble_type_t *marble_types);
+    void get_current_eighth_note_marble_types(marble_type_t *marble_types);
+    bool is_current_eighth_note_locked();
+    measure_lock_event_t **get_measure_lock_events();
+    bool has_locked_measure_events_pending();
+    void set_locked_measure_marble_types(measure_lock_event_t *event, marble_type_t *measure_marble_types);
     
 private:
     sequencer_callback_t _sequencer_callback;
@@ -52,6 +64,7 @@ private:
     float _bpm;
     bool _tracks_enabled[SEQUENCER_TRACKS_NUM];
     measure_state_t _measures_states[SEQUENCER_MEASURES_NUM];
+    measure_lock_event_t *_measure_lock_events[SEQUENCER_MEASURES_NUM];
 
     
     void _start_playing();

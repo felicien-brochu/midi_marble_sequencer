@@ -29,6 +29,7 @@ Sequencer::Sequencer()
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
         _measures_states[i] = MEASURE_STATE_PLAY;
+        _measure_lock_events[i] = NULL;
     }
 }
 
@@ -97,7 +98,6 @@ void Sequencer::next_page()
         }
     }
 
-
     if (next_page_index >= SEQUENCER_PAGES_NUM)
     {
         for (next_page_index = 0; next_page_index < _current_page_index; next_page_index++)
@@ -115,6 +115,49 @@ void Sequencer::next_page()
     }
     
     _current_page_index = next_page_index;
+}
+
+
+void Sequencer::set_eighth_note_marble_types(marble_type_t *marble_types)
+{
+    SequencerPage &edited_page = _pages[_edited_page_index];
+    edited_page.set_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+}
+
+void Sequencer::get_current_eighth_note_marble_types(marble_type_t *marble_types)
+{
+    SequencerPage &current_page = _pages[_current_page_index];
+    current_page.get_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+}
+
+bool Sequencer::is_current_eighth_note_locked()
+{
+    SequencerPage &current_page = _pages[_current_page_index];
+    return current_page.get_eighth_note_measure_state(_current_eighth_note_index) == MEASURE_STATE_LOCK;
+}
+
+measure_lock_event_t **Sequencer::get_measure_lock_events()
+{
+    return _measure_lock_events;
+}
+
+bool Sequencer::has_locked_measure_events_pending()
+{
+    for (uint8_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
+    {
+        if (_measure_lock_events[i] != NULL)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Sequencer::set_locked_measure_marble_types(measure_lock_event_t *event, marble_type_t *measure_marble_types)
+{
+    SequencerPage &page = _pages[event->page_index];
+    page.set_measure_marble_types(event->measure_index, measure_marble_types);
+    _measure_lock_events[event->measure_index] = NULL;
 }
 
 void Sequencer::_set_playing_from_play_pause_switch(bool play_pause_switch_pushed)
@@ -201,7 +244,6 @@ inline measure_state_t _rotary_button_state_to_measure_state(const rotary_button
 
 void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states)
 {
-
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
         measure_state_t measure_state = _rotary_button_state_to_measure_state(rotary_buttons_states[i]);
@@ -212,5 +254,37 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
     }
     
     SequencerPage &edited_page = _pages[_edited_page_index];
+
+    measure_state_t *measures_states = edited_page.get_measures_states();
+    bool has_new_lock_state = false;
+
+    for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
+    {
+        if (_measures_states[i] == MEASURE_STATE_LOCK)
+        {
+            if (measures_states[i] != MEASURE_STATE_LOCK)
+            {
+                _measure_lock_events[i] = (measure_lock_event_t *) malloc(sizeof(measure_lock_event_t));
+                _measure_lock_events[i]->page_index = _edited_page_index;
+                _measure_lock_events[i]->measure_index = i;
+
+                has_new_lock_state = true;
+            }
+        }
+        else
+        {
+            if (_measure_lock_events[i] != NULL)
+            {
+                free(_measure_lock_events[i]);
+                _measure_lock_events[i] = NULL;
+            }
+        }
+    }
+
     edited_page.set_measures_states(_measures_states);
+    
+    if (has_new_lock_state)
+    {
+        _sequencer_callback(SEQUENCER_CB_NEW_LOCK_EVENT, NULL, _sequencer_callback_context);
+    }
 }

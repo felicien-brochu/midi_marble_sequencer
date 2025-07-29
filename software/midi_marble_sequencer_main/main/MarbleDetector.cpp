@@ -3,28 +3,41 @@
 
 MarbleDetector::MarbleDetector() : _ir_sens_boards(), _ir_sens_reader(&_ir_sens_boards)
 {
+    _mutex = xSemaphoreCreateMutex();
 }
 
-marble_type_t *MarbleDetector::detect_eighth_note_marbles(uint8_t eighth_note_index)
+void MarbleDetector::detect_eighth_note_marbles(uint8_t eighth_note_index, marble_type_t *eighth_note_marble_types)
 {
-    _ir_sens_reader.read_column(_values_off, _values_on, eighth_note_index);
+    if (xSemaphoreTake(_mutex, portMAX_DELAY))
+    {
+        _ir_sens_reader.read_column(_values_off, _values_on, eighth_note_index);
 
-    _convert_eighth_note_values_to_marble_types(eighth_note_index);
-
-    return _eighth_note_marble_types;
+        _convert_eighth_note_values_to_marble_types(eighth_note_index, eighth_note_marble_types);
+        xSemaphoreGive(_mutex);
+    }
 }
 
-marble_type_t *MarbleDetector::get_current_eighth_note_marbles()
+void MarbleDetector::detect_measure_marbles(uint8_t measure_index, marble_type_t *measure_marble_types)
 {
-    return _eighth_note_marble_types;
+    if (xSemaphoreTake(_mutex, portMAX_DELAY))
+    {
+        for (size_t i = 0; i < SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM; i++)
+        {
+            uint8_t eighth_note_index = measure_index * SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM + i;
+            _ir_sens_reader.read_column(_values_off, _values_on, eighth_note_index);
+            _convert_eighth_note_values_to_marble_types(eighth_note_index, &measure_marble_types[i * SEQUENCER_TRACKS_NUM]);
+        }
+
+        xSemaphoreGive(_mutex);
+    }
 }
 
-void MarbleDetector::_convert_eighth_note_values_to_marble_types(uint8_t eighth_note_index)
+void MarbleDetector::_convert_eighth_note_values_to_marble_types(uint8_t eighth_note_index, marble_type_t *eighth_note_marble_types)
 {
-    for (size_t i = 0; i < NUM_VALUE_BY_COLUMN; i++)
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
         marble_type_t marble_type = _get_marble_type(i, _get_thresholds_for_eighth_note_value(eighth_note_index, i));
-        _eighth_note_marble_types[i] = marble_type;
+        eighth_note_marble_types[i] = marble_type;
     }
 }
 

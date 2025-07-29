@@ -25,9 +25,6 @@
 #define IR_SENS_MUX_S2_PIN GPIO_NUM_37
 #define IR_SENS_MUX_S3_PIN GPIO_NUM_38
 
-
-#define NUM_VALUE_BY_COLUMN (NUM_IR_SENS_BY_BOARD / 2)
-
 class IRSensBoards
 {
 public:

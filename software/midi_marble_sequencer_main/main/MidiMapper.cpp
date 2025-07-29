@@ -1,5 +1,6 @@
 #include "MidiMapper.h"
 #include "IRSensBoards.h"
+#include "sequencer_config.h"
 
 static uint8_t marble_types_mapping[] = {
     36, 38, 39, 41, 43, 45, 46,
@@ -18,7 +19,7 @@ MidiMapper::MidiMapper()
 size_t MidiMapper::eighth_note_marble_types_to_midi_notes(uint8_t *midi_notes, const marble_type_t *marble_types)
 {
     size_t num_midi_notes = 0;
-    for (size_t i = 0; i < NUM_VALUE_BY_COLUMN; i++)
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
         marble_type_t marble_type = marble_types[i];
         if (marble_type != NO_MARBLE)
@@ -33,7 +34,7 @@ size_t MidiMapper::eighth_note_marble_types_to_midi_notes(uint8_t *midi_notes, c
 
 uint8_t MidiMapper::_eighth_note_marble_type_to_midi_note(uint8_t line_index, marble_type_t marble_type)
 {
-    uint8_t line_index_inv = NUM_VALUE_BY_COLUMN - line_index - 1;
+    uint8_t line_index_inv = SEQUENCER_TRACKS_NUM - line_index - 1;
     uint8_t note_index = 0;
     uint8_t marble_type_index = (marble_type - 1);
 
@@ -43,5 +44,5 @@ uint8_t MidiMapper::_eighth_note_marble_type_to_midi_note(uint8_t line_index, ma
         marble_type_index = 1;
     }
 
-    return marble_types_mapping[marble_type_index * NUM_VALUE_BY_COLUMN + line_index_inv];
+    return marble_types_mapping[marble_type_index * SEQUENCER_TRACKS_NUM + line_index_inv];
 }
