@@ -50,27 +50,36 @@ void ControlBoardsController::start_control_boards_task()
 
 void ControlBoardsController::main_task()
 {
+    esp_err_t err;
     while (true)
     {
-        esp_err_t err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
-        if (err == ESP_OK)
+        while (true)
         {
-            break;
+            err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
+            if (err == ESP_OK)
+            {
+                break;
+            }
         }
-    }
 
-    while(true)
-    {
-        controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
-        memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
+        while(true)
+        {
+            controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
+            memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
 
-        ESP_ERROR_CHECK(i2c_master_transmit_receive(_controls_main_device_handle, _write_buffer, sizeof(controls_main_display_t), _read_buffer, sizeof(controls_main_value_t), -1));
-        
-        controls_main_value_t controls_main_value;
-        memcpy(&controls_main_value, _read_buffer, sizeof(controls_main_value_t));
+            err = i2c_master_transmit_receive(_controls_main_device_handle, _write_buffer, sizeof(controls_main_display_t), _read_buffer, sizeof(controls_main_value_t), -1);
 
-        _sequencer.handle_controls_main_event(controls_main_value);
-        
-        vTaskDelay(pdMS_TO_TICKS(I2C_MASTER_TIMER_PERIOD / 1000));
+            if (err != ESP_OK)
+            {
+                break;
+            }
+            
+            controls_main_value_t controls_main_value;
+            memcpy(&controls_main_value, _read_buffer, sizeof(controls_main_value_t));
+
+            _sequencer.handle_controls_main_event(controls_main_value);
+            
+            vTaskDelay(pdMS_TO_TICKS(I2C_MASTER_TIMER_PERIOD / 1000));
+        }
     }
 }
