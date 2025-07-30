@@ -26,6 +26,7 @@ void main_midi_marble_sequencer()
 void main_calibrate()
 {
     HorizontalCalibration calibration(8, 10, 25, 4);
+    // HorizontalCalibration calibration(1, 10, 25, 4);
     while (1)
     {
         calibration.update();
@@ -89,6 +90,8 @@ void main_print_all_boards_first_values()
             board_reader.read_sensor_value(&value_off, &value_on, i, 0, 10);
             printf(">diff%d: %lf\n", i, (double) value_off - (double) value_on);
         }
+        // board_reader.read_sensor_value(&value_off, &value_on, 4, 0, 10);
+        // printf(">diff%d: %lf\n", 4, (double) value_off - (double) value_on);
 
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -111,8 +114,6 @@ void main_test_led_snake()
 
 extern "C" void app_main()
 {
-    esp_log_level_set("*", ESP_LOG_DEBUG);
-
     main_midi_marble_sequencer();
 
     // main_test_led_snake();
