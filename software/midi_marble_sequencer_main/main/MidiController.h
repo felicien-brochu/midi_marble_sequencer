@@ -83,8 +83,8 @@ private:
     Sequencer &_sequencer;
     MidiMapper _midi_mapper;
 
-    uint8_t _notes_on[SEQUENCER_EIGHTH_NOTE_NUM * SEQUENCER_TRACKS_NUM];
+    midi_note_t _notes_on[SEQUENCER_EIGHTH_NOTE_NUM * SEQUENCER_TRACKS_NUM];
     size_t _notes_on_size;
     
-    void _send_notes_on(uint8_t *midi_notes, size_t num_notes);
+    void _send_notes_on(midi_note_t *midi_notes, size_t num_notes);
 };

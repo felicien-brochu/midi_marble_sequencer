@@ -22,7 +22,7 @@ MidiController::MidiController(Sequencer &sequencer) : _sequencer(sequencer)
 
 void MidiController::send_eighth_note_midi_notes()
 {
-    uint8_t midi_notes[SEQUENCER_TRACKS_NUM];
+    midi_note_t midi_notes[SEQUENCER_TRACKS_NUM];
     marble_type_t marble_types[SEQUENCER_TRACKS_NUM];
     _sequencer.get_current_eighth_note_marble_types(marble_types);
 
@@ -32,18 +32,17 @@ void MidiController::send_eighth_note_midi_notes()
     _send_notes_on(midi_notes, num_notes);
 }
 
-void MidiController::_send_notes_on(uint8_t *midi_notes, size_t num_notes)
+void MidiController::_send_notes_on(midi_note_t *midi_notes, size_t num_notes)
 {
     if (tud_midi_mounted())
     {
-        uint8_t midi_channel = 0;
         uint8_t midi_cable_num = 0;
 
         for (size_t i = 0; i < num_notes; i++)
         {
             // printf("Send note_on: %d\n", midi_notes[i]);
-            uint8_t note_on_plus_channel = (uint8_t)NOTE_ON | midi_channel;
-            uint8_t note_on[3] = {note_on_plus_channel, midi_notes[i], 127};
+            uint8_t note_on_plus_channel = (uint8_t) NOTE_ON | midi_notes[i].channel;
+            uint8_t note_on[3] = {note_on_plus_channel, midi_notes[i].note, 127};
             tud_midi_stream_write(midi_cable_num, note_on, 3);
             _notes_on[i] = midi_notes[i];
         }
@@ -56,13 +55,12 @@ void MidiController::send_notes_off()
 {
     if (tud_midi_mounted())
     {
-        uint8_t midi_channel = 0;
         uint8_t midi_cable_num = 0;
 
         for (size_t i = 0; i < _notes_on_size; i++)
         {
-            uint8_t note_off_plus_channel = (uint8_t)NOTE_OFF | midi_channel;
-            uint8_t note_off[3] = {note_off_plus_channel, _notes_on[i], 0};
+            uint8_t note_off_plus_channel = (uint8_t)NOTE_OFF | _notes_on[i].channel;
+            uint8_t note_off[3] = {note_off_plus_channel, _notes_on[i].note, 0};
             tud_midi_stream_write(midi_cable_num, note_off, 3);
         }
 
