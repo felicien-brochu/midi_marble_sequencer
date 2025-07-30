@@ -45,18 +45,18 @@ void SensorStatistics::compute_thresholds(uint16_t *thresholds)
 {
     for (size_t i = 0; i < NUM_MARBLE_TYPE - 1; i++)
     {
-        uint16_t up_var = color_statistics[i].max - color_statistics[i].mean;
-        uint16_t down_var = color_statistics[i + 1].mean - color_statistics[i + 1].min;
+        // uint16_t up_var = color_statistics[i].max - color_statistics[i].mean;
+        // uint16_t down_var = color_statistics[i + 1].mean - color_statistics[i + 1].min;
 
-        float k = ((float) up_var) / (up_var + down_var);
-        uint16_t threshold = (uint16_t) (color_statistics[i].max + k * (color_statistics[i + 1].min - color_statistics[i].max));
+        // float k = ((float) up_var) / (up_var + down_var);
+        // uint16_t threshold = (uint16_t) (color_statistics[i].max + k * (color_statistics[i + 1].min - color_statistics[i].max));
 
-        // First and last threshold are not scaled by variance because first and last marble types have truncated (saturated) measurements
-        // Instead we choose the middle between low max et high min.
-        if (i == 0 || i == NUM_MARBLE_TYPE - 2)
-        {
-            threshold = color_statistics[i].max + ((color_statistics[i + 1].min - color_statistics[i].max) / 2);
-        }
+        // // First and last threshold are not scaled by variance because first and last marble types have truncated (saturated) measurements
+        // // Instead we choose the middle between low max et high min.
+        // if (i == 0 || i == NUM_MARBLE_TYPE - 2)
+        // {
+        uint16_t threshold = color_statistics[i].mean + ((color_statistics[i + 1].mean - color_statistics[i].mean) / 2);
+        // }
         thresholds[i] = threshold;
     }
 }
@@ -253,14 +253,17 @@ void HorizontalCalibration::_print_csv_data()
 
 void HorizontalCalibration::_print_c_array_thresholds()
 {
+    printf("const uint16_t marble_types_thresholds[NUM_IR_SENS_BOARDS][NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1] = {\n");
+
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
     {
+        printf("\t{\n");
         for (int ir_sens_channel = 0; ir_sens_channel < NUM_IR_SENS_BY_BOARD; ir_sens_channel++)
         {
             SensorStatistics *sensor_stats = _statistics[board_index * NUM_IR_SENS_BY_BOARD + ir_sens_channel];
             uint16_t thresholds[NUM_MARBLE_TYPE - 1];
             sensor_stats->compute_thresholds(thresholds);
-            printf("{");
+            printf("\t\t{");
             for (int j = 0; j < NUM_MARBLE_TYPE - 1; j++)
             {
                 printf("%4d", thresholds[j]);
@@ -279,11 +282,22 @@ void HorizontalCalibration::_print_c_array_thresholds()
             {
                 printf(",");
             }
+            else
+            {
+                printf("\n\t}");
+
+                if (board_index < NUM_IR_SENS_BOARDS - 1)
+                {
+                    printf(",");
+                }
+            }
             printf("\n");
         }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+        
+    printf("};\n");
 }
 
 void HorizontalCalibration::_print_c_array_means()
