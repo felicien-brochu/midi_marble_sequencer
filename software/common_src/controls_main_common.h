@@ -24,6 +24,7 @@ typedef struct
     bool play_pause_switch_pushed;
     rotary_button_state_t rotary_buttons_states[SEQUENCER_MEASURES_NUM];
     push_button_event_t tracks_push_buttons[SEQUENCER_TRACKS_NUM];
+    uint16_t crc16;
 } controls_main_value_t;
 
 
@@ -31,4 +32,5 @@ typedef struct
 {
     bool play_pause_led_enabled;
     bool tracks_led_enabled[SEQUENCER_TRACKS_NUM];
+    uint16_t crc16;
 } controls_main_display_t;

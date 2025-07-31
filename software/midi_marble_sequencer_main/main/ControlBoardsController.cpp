@@ -1,7 +1,10 @@
 #include "ControlBoardsController.h"
 
+#include "crc.h"
+
 #include <cstring>
 #include <esp_err.h>
+#include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -35,7 +38,7 @@ ControlBoardsController::ControlBoardsController(Sequencer &sequencer) : _sequen
         .scl_speed_hz = I2C_CONFIG_CLOCK_SPEED_HZ,
         .scl_wait_us = 0,
         .flags = {
-            .disable_ack_check = true
+            .disable_ack_check = false
         }
     };
 
@@ -53,24 +56,34 @@ void ControlBoardsController::main_task()
     esp_err_t err;
     while (true)
     {
-        while (true)
-        {
-            err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
-            if (err == ESP_OK)
-            {
-                break;
-            }
-        }
+        // while (true)
+        // {
+        //     err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
+        //     if (err == ESP_OK)
+        //     {
+        //         break;
+        //     }
+        // }
 
         while(true)
         {
             controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
             memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
 
+            compute_crc16(_write_buffer, sizeof(controls_main_display_t));
+
             err = i2c_master_transmit_receive(_controls_main_device_handle, _write_buffer, sizeof(controls_main_display_t), _read_buffer, sizeof(controls_main_value_t), -1);
 
             if (err != ESP_OK)
             {
+                printf("transmit_receive err : %x\n", err);
+                break;
+            }
+
+            if (!check_crc16(_read_buffer, sizeof(controls_main_value_t)))
+            {
+                printf("CRC check FAILED!\n");
+                ESP_ERROR_CHECK(i2c_master_bus_reset(_i2c_bus_handle));
                 break;
             }
             
