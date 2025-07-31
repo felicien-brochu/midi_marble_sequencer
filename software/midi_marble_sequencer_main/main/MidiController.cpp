@@ -26,7 +26,8 @@ void MidiController::send_eighth_note_midi_notes()
     marble_type_t marble_types[SEQUENCER_TRACKS_NUM];
     _sequencer.get_current_eighth_note_marble_types(marble_types);
 
-    size_t num_notes = _midi_mapper.eighth_note_marble_types_to_midi_notes(midi_notes, marble_types);
+    const bool *enabled_tracks = _sequencer.get_enabled_tracks();
+    size_t num_notes = _midi_mapper.eighth_note_marble_types_to_midi_notes(midi_notes, marble_types, enabled_tracks);
 
     send_notes_off();
     _send_notes_on(midi_notes, num_notes);

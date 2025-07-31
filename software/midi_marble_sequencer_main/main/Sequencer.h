@@ -47,6 +47,7 @@ public:
     measure_lock_event_t **get_measure_lock_events();
     bool has_locked_measure_events_pending();
     void set_locked_measure_marble_types(measure_lock_event_t *event, marble_type_t *measure_marble_types);
+    const bool *get_enabled_tracks();
     
 private:
     sequencer_callback_t _sequencer_callback;

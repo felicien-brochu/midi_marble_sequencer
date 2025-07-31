@@ -16,43 +16,46 @@ MidiMapper::MidiMapper()
 {
 }
 
-size_t MidiMapper::eighth_note_marble_types_to_midi_notes(midi_note_t *midi_notes, const marble_type_t *marble_types)
+size_t MidiMapper::eighth_note_marble_types_to_midi_notes(midi_note_t *midi_notes, const marble_type_t *marble_types, const bool *enabled_tracks)
 {
     size_t num_midi_notes = 0;
-    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
+    for (uint8_t track_index = 0; track_index < SEQUENCER_TRACKS_NUM; track_index++)
     {
-        marble_type_t marble_type = marble_types[i];
-        if (marble_type != NO_MARBLE)
+        if (enabled_tracks[track_index])
         {
-            midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_boom_box(i, marble_type);
-            num_midi_notes++;
+            marble_type_t marble_type = marble_types[track_index];
+            if (marble_type != NO_MARBLE)
+            {
+                midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_boom_box(track_index, marble_type);
+                num_midi_notes++;
+            }
         }
     }
     
     return num_midi_notes;
 }
 
-midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_melodic(uint8_t line_index, marble_type_t marble_type)
+midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_melodic(uint8_t track_index, marble_type_t marble_type)
 {
-    uint8_t line_index_inv = SEQUENCER_TRACKS_NUM - line_index - 1;
+    uint8_t track_index_inv = SEQUENCER_TRACKS_NUM - track_index - 1;
     uint8_t marble_type_index = (marble_type - 1);
 
     midi_note_t midi_note = {
-        .note = marble_types_melodic_mapping[marble_type_index * SEQUENCER_TRACKS_NUM + line_index_inv],
+        .note = marble_types_melodic_mapping[marble_type_index * SEQUENCER_TRACKS_NUM + track_index_inv],
         .channel = 0
     };
 
     return midi_note;
 }
 
-midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_boom_box(uint8_t line_index, marble_type_t marble_type)
+midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_boom_box(uint8_t track_index, marble_type_t marble_type)
 {
     uint8_t notes[] = {53, 60, 65};
     uint8_t marble_type_index = (marble_type - 1);
 
     midi_note_t midi_note = {
         .note = notes[marble_type_index],
-        .channel = line_index
+        .channel = track_index
     };
 
     return midi_note;

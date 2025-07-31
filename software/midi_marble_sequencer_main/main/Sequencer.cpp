@@ -288,3 +288,8 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
         _sequencer_callback(SEQUENCER_CB_NEW_LOCK_EVENT, NULL, _sequencer_callback_context);
     }
 }
+
+const bool *Sequencer::get_enabled_tracks()
+{
+    return _tracks_enabled;
+}
