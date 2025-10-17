@@ -210,6 +210,7 @@ uint8_t Sequencer::_get_first_played_page_index()
 // Sets BPM from potentiometer value. Potentiometer value is 0 < value < 1.
 void Sequencer::_set_bpm_from_potentiometer(const float potentiometer_value)
 {
+    // Use exponential function so that the ADC error is proportionally mapped to the final BPM value.
     const float base = (float) SEQUENCER_BPM_MAX / (float) SEQUENCER_BPM_MIN;
     float new_sample = SEQUENCER_BPM_MIN * pow(base, potentiometer_value);
     float new_bpm = 0;
