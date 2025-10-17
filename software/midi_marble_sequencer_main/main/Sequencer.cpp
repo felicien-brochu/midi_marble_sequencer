@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstddef>
+#include <cmath>
 #include <esp_log.h>
 
 static const char *TAG = "SEQUENCER";
@@ -20,6 +21,11 @@ Sequencer::Sequencer()
 
     _is_playing = false;
     _bpm = SEQUENCER_BPM_DEFAULT;
+    for (size_t i = 0; i < SEQUENCER_BPM_SAMPLE_COUNT; i++)
+    {
+        _bpm_samples[i] = SEQUENCER_BPM_DEFAULT;
+    }
+    
 
     for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
     {
@@ -204,13 +210,28 @@ uint8_t Sequencer::_get_first_played_page_index()
 // Sets BPM from potentiometer value. Potentiometer value is 0 < value < 1.
 void Sequencer::_set_bpm_from_potentiometer(const float potentiometer_value)
 {
-    float new_bpm = potentiometer_value * (SEQUENCER_BPM_MAX - SEQUENCER_BPM_MIN) + SEQUENCER_BPM_MIN;
+    const float base = (float) SEQUENCER_BPM_MAX / (float) SEQUENCER_BPM_MIN;
+    float new_sample = SEQUENCER_BPM_MIN * pow(base, potentiometer_value);
+    float new_bpm = 0;
 
-    if (abs(new_bpm - _bpm) > SEQUENCER_BPM_CHANGE_MIN)
+    // smoothing BPM (removing noise)
+    for (size_t i = SEQUENCER_BPM_SAMPLE_COUNT - 1; i > 0; i--)
     {
-        _bpm = new_bpm;
-        _sequencer_callback(SEQUENCER_CB_BPM_CHANGE, NULL, _sequencer_callback_context);
+        _bpm_samples[i] = _bpm_samples[i - 1];
+        // new_bpm += _bpm_samples[i] * (SEQUENCER_BPM_SAMPLE_COUNT - i);
+        new_bpm += _bpm_samples[i];
     }
+    _bpm_samples[0] = new_sample;
+    // new_bpm += _bpm_samples[0] * SEQUENCER_BPM_SAMPLE_COUNT;
+    new_bpm += _bpm_samples[0];
+    
+    // const float n_int_sum = (((float) SEQUENCER_BPM_SAMPLE_COUNT * ((float)SEQUENCER_BPM_SAMPLE_COUNT + 1.)) / 2.);
+    // new_bpm = new_bpm / n_int_sum;
+    new_bpm = new_bpm / SEQUENCER_BPM_SAMPLE_COUNT;
+
+    _bpm = new_bpm;
+
+    // ESP_LOGI(TAG, "sample: %f, New bpm: %f", new_sample, new_bpm);
 }
 
 void Sequencer::_set_tracks_enabled_from_push_buttons(const push_button_event_t *push_buttons_events)
@@ -221,6 +242,7 @@ void Sequencer::_set_tracks_enabled_from_push_buttons(const push_button_event_t 
         // If odd number of clicks toggle track state
         if (click_events_pending % 2 != 0)
         {
+            ESP_LOGI(TAG, "Track btn clck [%d]", i);
             _tracks_enabled[i] = !_tracks_enabled[i];
         }
     }

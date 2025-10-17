@@ -7,7 +7,6 @@ BeatsLEDSnake::BeatsLEDSnake() : _mux(BEATS_SNAKE_MUX_S0_PIN, BEATS_SNAKE_MUX_S1
     _enabled = false;
     _eighth_note_index = 0;
 
-    gpio_reset_pin(BEATS_SNAKE_LED_POWER_PIN);
     gpio_set_direction(BEATS_SNAKE_LED_POWER_PIN, GPIO_MODE_OUTPUT);
 
     update();

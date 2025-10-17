@@ -3,8 +3,9 @@
 
 #include "tinyusb.h"
 
-#define NOTE_OFF 0x80
-#define NOTE_ON  0x90
+#define MIDI_NOTE_OFF     0x80
+#define MIDI_NOTE_ON      0x90
+#define MIDI_TIMING_CLOCK 0xF8
 
 
 // Interface counter
@@ -76,6 +77,7 @@ public:
     MidiController(Sequencer &sequencer);
     void send_eighth_note_midi_notes();
     void send_notes_off();
+    void send_timing_clock();
 
     
 private:

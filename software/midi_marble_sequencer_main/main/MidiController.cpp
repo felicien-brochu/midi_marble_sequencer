@@ -1,9 +1,14 @@
 #include "MidiController.h"
 #include <class/midi/midi_device.h>
+#include <esp_log.h>
+
+static const char *TAG = "MidiController";
 
 
 MidiController::MidiController(Sequencer &sequencer) : _sequencer(sequencer)
 {
+    _notes_on_size = 0;
+
     tinyusb_config_t const tusb_cfg = {
         .device_descriptor = NULL, // If device_descriptor is NULL, tinyusb_driver_install() will use Kconfig
         .string_descriptor = s_str_desc,
@@ -42,9 +47,9 @@ void MidiController::_send_notes_on(midi_note_t *midi_notes, size_t num_notes)
         for (size_t i = 0; i < num_notes; i++)
         {
             // printf("Send note_on: %d\n", midi_notes[i]);
-            uint8_t note_on_plus_channel = (uint8_t) NOTE_ON | midi_notes[i].channel;
-            uint8_t note_on[3] = {note_on_plus_channel, midi_notes[i].note, 127};
-            tud_midi_stream_write(midi_cable_num, note_on, 3);
+            uint8_t note_on_plus_channel = (uint8_t) MIDI_NOTE_ON | midi_notes[i].channel;
+            uint8_t note_on_message[3] = {note_on_plus_channel, midi_notes[i].note, 127};
+            tud_midi_stream_write(midi_cable_num, note_on_message, 3);
             _notes_on[i] = midi_notes[i];
         }
 
@@ -60,11 +65,21 @@ void MidiController::send_notes_off()
 
         for (size_t i = 0; i < _notes_on_size; i++)
         {
-            uint8_t note_off_plus_channel = (uint8_t)NOTE_OFF | _notes_on[i].channel;
-            uint8_t note_off[3] = {note_off_plus_channel, _notes_on[i].note, 0};
-            tud_midi_stream_write(midi_cable_num, note_off, 3);
+            uint8_t note_off_plus_channel = (uint8_t) MIDI_NOTE_OFF | _notes_on[i].channel;
+            uint8_t note_off_message[3] = {note_off_plus_channel, _notes_on[i].note, 0};
+            tud_midi_stream_write(midi_cable_num, note_off_message, 3);
         }
 
         _notes_on_size = 0;
+    }
+}
+
+void MidiController::send_timing_clock()
+{
+    if (tud_midi_mounted())
+    {
+        uint8_t midi_cable_num = 0;
+        uint8_t timing_clock_message[1] = {MIDI_TIMING_CLOCK};
+        tud_midi_stream_write(midi_cable_num, timing_clock_message, 1);
     }
 }

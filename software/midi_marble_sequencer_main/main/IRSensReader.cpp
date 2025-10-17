@@ -4,7 +4,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
-#include <esp_timer.h>
 
 static const char *TAG = "IR_SENS_BOARD_READER";
 
@@ -29,7 +28,7 @@ IRSensReader::IRSensReader(IRSensBoards *ir_sens_boards)
 
 void IRSensReader::read_column(uint32_t *_values_off, uint32_t *_values_on, uint8_t column_index)
 {
-    uint64_t t0 = esp_timer_get_time();
+    // uint64_t t0 = esp_timer_get_time();
     uint8_t board_index = column_index / 2;
 
     static const uint8_t _even_column_sensors[SEQUENCER_TRACKS_NUM] = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -38,32 +37,32 @@ void IRSensReader::read_column(uint32_t *_values_off, uint32_t *_values_on, uint
     const uint8_t *column_sensors = ((column_index % 2 == 1) ? _odd_column_sensors : _even_column_sensors);
     read_sub_board_values(_values_off, _values_on, board_index, column_sensors, SEQUENCER_TRACKS_NUM, IR_SENSOR_MULTISAMPLING);
 
-    ESP_LOGD(TAG, "read_column time: %llu us", esp_timer_get_time() - t0);
+    // ESP_LOGD(TAG, "read_column time: %llu us", esp_timer_get_time() - t0);
 }
 
 void IRSensReader::read_sub_board_values(uint32_t *values_off, uint32_t *values_on, uint8_t board_index, const uint8_t *sensor_list, size_t sensor_list_size, int multisampling)
 {
-    uint64_t t0 = esp_timer_get_time();
+    // uint64_t t0 = esp_timer_get_time();
     _ir_sens_boards->select_board(board_index);
     read_sub_board_values_off(values_off, sensor_list, sensor_list_size, multisampling);
     read_sub_board_values_on(values_on, sensor_list, sensor_list_size, multisampling);
 
-    ESP_LOGD(TAG, "SubBoard read time: %llu us", esp_timer_get_time() - t0);
+    // ESP_LOGD(TAG, "SubBoard read time: %llu us", esp_timer_get_time() - t0);
 }
 
 void IRSensReader::read_board_values(uint32_t *values_off, uint32_t *values_on, uint8_t board_index, int multisampling)
 {
-    uint64_t t0 = esp_timer_get_time();
+    // uint64_t t0 = esp_timer_get_time();
     _ir_sens_boards->select_board(board_index);
     read_values_off(values_off, multisampling);
     read_values_on(values_on, multisampling);
 
-    ESP_LOGD(TAG, "Board read time: %llu us", esp_timer_get_time() - t0);
+    // ESP_LOGD(TAG, "Board read time: %llu us", esp_timer_get_time() - t0);
 }
 
 void IRSensReader::read_sensor_value(uint32_t *value_off, uint32_t *value_on, uint8_t board_index, uint8_t sensor_index, int multisampling)
 {
-    uint64_t t0 = esp_timer_get_time();
+    // uint64_t t0 = esp_timer_get_time();
     _ir_sens_boards->select_board(board_index);
     _ir_sens_boards->select_sensor(sensor_index);
 
@@ -83,7 +82,7 @@ void IRSensReader::read_sensor_value(uint32_t *value_off, uint32_t *value_on, ui
     *value_off = *value_off / multisampling;
     *value_on = *value_on / multisampling;
 
-    ESP_LOGD(TAG, "Sensor read time: %llu us", esp_timer_get_time() - t0);
+    // ESP_LOGD(TAG, "Sensor read time: %llu us", esp_timer_get_time() - t0);
 }
 
 inline void _read_sub_board_values(IRSensBoards *ir_sens_boards, adc_oneshot_unit_handle_t adc_handle, uint32_t *values, const uint8_t *sensor_list, size_t sensor_list_size, int multisampling)

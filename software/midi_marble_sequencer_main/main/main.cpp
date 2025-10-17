@@ -1,6 +1,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
+#include <esp_err.h>
+// #include <esp_heap_trace.h>
 #include <driver/gpio.h>
 
 #include "IRSensBoards.h"
@@ -11,15 +13,29 @@
 #include "MasterClock.h"
 #include "Sequencer.h"
 
+static const char *TAG = "main";
+
+// #define NUM_RECORDS 100
+// static heap_trace_record_t trace_record[NUM_RECORDS];
+
 void main_midi_marble_sequencer()
 {
+    // ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
+    // heap_trace_start(HEAP_TRACE_ALL);
+
     Sequencer sequencer;
     MasterClock master_clock(sequencer);
+    
+    // heap_trace_stop();
+    // if (!heap_caps_check_integrity_all(true))
+    // {
+    //     heap_trace_dump();
+    // }
 
     while (1)
     {
         // esp_timer_dump(stdout);
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 

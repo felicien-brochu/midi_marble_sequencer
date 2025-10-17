@@ -4,9 +4,11 @@
 
 #include <cstring>
 #include <esp_err.h>
-#include <esp_timer.h>
+#include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+
+static const char *TAG = "ControlBoardsController";
 
 static void _control_boards_controller_task(void *control_boards_controller_arg)
 {
@@ -65,7 +67,7 @@ void ControlBoardsController::main_task()
         //     }
         // }
 
-        while(true)
+        while (true)
         {
             controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
             memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
@@ -76,13 +78,13 @@ void ControlBoardsController::main_task()
 
             if (err != ESP_OK)
             {
-                printf("transmit_receive err : %x\n", err);
+                ESP_LOGE(TAG, "transmit_receive err : %x", err);
                 break;
             }
 
             if (!check_crc16(_read_buffer, sizeof(controls_main_value_t)))
             {
-                printf("CRC check FAILED!\n");
+                ESP_LOGE(TAG, "CRC check FAILED!");
                 ESP_ERROR_CHECK(i2c_master_bus_reset(_i2c_bus_handle));
                 break;
             }

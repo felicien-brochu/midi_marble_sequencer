@@ -8,13 +8,11 @@
 #define SEQUENCER_BPM_MIN 20
 #define SEQUENCER_BPM_MAX 600
 #define SEQUENCER_BPM_DEFAULT 600
-#define SEQUENCER_BPM_CHANGE_MIN 1
-
+#define SEQUENCER_BPM_SAMPLE_COUNT 5
 
 typedef enum {
     SEQUENCER_CB_START_PLAYING = 0,
     SEQUENCER_CB_STOP_PLAYING,
-    SEQUENCER_CB_BPM_CHANGE,
     SEQUENCER_CB_NEW_LOCK_EVENT
 } sequencer_callback_type_t;
 
@@ -62,6 +60,7 @@ private:
     
     
     bool _is_playing;
+    float _bpm_samples[SEQUENCER_BPM_SAMPLE_COUNT];
     float _bpm;
     bool _tracks_enabled[SEQUENCER_TRACKS_NUM];
     measure_state_t _measures_states[SEQUENCER_MEASURES_NUM];

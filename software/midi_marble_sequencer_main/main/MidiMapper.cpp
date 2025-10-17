@@ -50,7 +50,7 @@ midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_melodic(uint8_t tr
 
 midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_boom_box(uint8_t track_index, marble_type_t marble_type)
 {
-    uint8_t notes[] = {53, 60, 65};
+    uint8_t notes[] = {53, 60, 67};
     uint8_t marble_type_index = (marble_type - 1);
 
     midi_note_t midi_note = {
