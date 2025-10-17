@@ -1,4 +1,0 @@
-(fp_lib_table
-  (version 7)
-  (lib (name "sequencer")(type "KiCad")(uri "${KIPRJMOD}/sequencer.pretty")(options "")(descr ""))
-)
