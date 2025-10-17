@@ -9,6 +9,9 @@ elseif(${target} STREQUAL "esp32s2")
 elseif(${target} STREQUAL "esp32p4")
     set(tusb_mcu "OPT_MCU_ESP32P4")
     set(tusb_family "esp32px")
+elseif(${target} STREQUAL "esp32h4")
+    set(tusb_mcu "OPT_MCU_ESP32H4")
+    set(tusb_family "esp32sx")
 endif()
 
 set(compile_options
@@ -38,6 +41,7 @@ set(srcs
     "src/class/audio/audio_device.c"
     "src/class/video/video_device.c"
     "src/class/bth/bth_device.c"
+    "src/class/usbtmc/usbtmc_device.c"
     # NET class
     "src/class/net/ecm_rndis_device.c"
     "lib/networking/rndis_reports.c"

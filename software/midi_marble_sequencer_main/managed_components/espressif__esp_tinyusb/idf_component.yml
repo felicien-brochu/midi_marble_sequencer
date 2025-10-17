@@ -1,5 +1,5 @@
 dependencies:
-  idf: ^5.0
+  idf: '>=5.0'
   tinyusb:
     public: true
     version: '>=0.14.2'
@@ -7,7 +7,7 @@ description: Espressif's additions to TinyUSB
 documentation: https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/api-reference/peripherals/usb_device.html
 repository: git://github.com/espressif/esp-usb.git
 repository_info:
-  commit_sha: eee82a75dd0b5a9f94cbfecacefd8fea76e5a165
+  commit_sha: c0be948c1acc6ee1f7ef00ab183c571971fccefd
   path: device/esp_tinyusb
 url: https://github.com/espressif/esp-usb/tree/master/device/esp_tinyusb
-version: 1.7.4
+version: 1.7.6~2
