@@ -1,18 +1,18 @@
 #include "LEDArray_arduino.h"
 
-#include <freertos/FreeRTOS.h>
-#include <esp_timer.h>
 #include <Arduino.h>
 
 
-static void _led_array_timer_callback(void *led_array_arg)
+LEDArray *LEDArray::instance;
+
+IRAM_ATTR void _led_array_timer_callback()
 {
-    LEDArray *led_array = (LEDArray *)led_array_arg;
-    led_array->update_next_led();
+    LEDArray::instance->update_next_led();
 }
 
-LEDArray::LEDArray(uint8_t num_leds, gpio_num_t power_gpio, gpio_num_t s0_gpio, gpio_num_t s1_gpio, gpio_num_t s2_gpio, gpio_num_t s3_gpio) : _mux(s0_gpio, s1_gpio, s2_gpio, s3_gpio)
+LEDArray::LEDArray(uint8_t num_leds, uint8_t power_gpio, uint8_t s0_gpio, uint8_t s1_gpio, uint8_t s2_gpio, uint8_t s3_gpio) : _mux(s0_gpio, s1_gpio, s2_gpio, s3_gpio)
 {
+    LEDArray::instance = this;
     _num_leds = num_leds;
     _power_gpio = power_gpio;
     _last_updated_led = _num_leds - 1;
@@ -25,15 +25,10 @@ LEDArray::LEDArray(uint8_t num_leds, gpio_num_t power_gpio, gpio_num_t s0_gpio, 
 
 void LEDArray::_init_timer()
 {
-    const esp_timer_create_args_t periodic_timer_args = {
-        .callback = &_led_array_timer_callback,
-        .arg = this,
-        .dispatch_method = ESP_TIMER_TASK,
-        .name = "LEDArray"};
-
-    esp_timer_handle_t periodic_timer;
-    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LED_ARRAY_TIMER_PERIOD));
+    _led_array_timer = timerBegin(1, 80, true);
+    timerAttachInterrupt(_led_array_timer, &_led_array_timer_callback, false);
+    timerAlarmWrite(_led_array_timer, LED_ARRAY_TIMER_PERIOD, true);
+    timerAlarmEnable(_led_array_timer);
 }
 
 void LEDArray::enable_led(uint8_t index)

@@ -229,6 +229,7 @@ esp_err_t ControlBoardsController::_read_controls_pages_events()
     }
 
     _sequencer.handle_controls_pages_event(controls_pages_value);
+    _last_controls_pages_value = controls_pages_value;
 
     return err;
 }
@@ -238,8 +239,12 @@ esp_err_t ControlBoardsController::_transmit_controls_pages_display()
     esp_err_t err = ESP_OK;
 
     controls_pages_display_t controls_pages_display = _sequencer.get_controls_pages_display();
-    memcpy(_pages_write_buffer, &controls_pages_display, sizeof(controls_pages_display_t));
 
+    controls_pages_display.played_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.played_pages_buttons, SEQUENCER_TRACKS_NUM);
+
+    controls_pages_display.edited_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.edited_pages_buttons, SEQUENCER_TRACKS_NUM);
+
+    memcpy(_pages_write_buffer, &controls_pages_display, sizeof(controls_pages_display_t));
     compute_crc16(_pages_write_buffer, sizeof(controls_pages_display_t));
 
     err = i2c_master_transmit(_controls_pages_device_handle, _pages_write_buffer, sizeof(controls_pages_display_t), -1);

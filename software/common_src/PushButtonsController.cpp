@@ -27,11 +27,20 @@ bool PushButtonsController::update()
     pinMode(_mux_gpio, INPUT);
 
     bool has_changed = false;
+    const uint8_t multisampling = 5;
 
     for (size_t i = 0; i < _num_buttons; i++)
     {
         _mux.channel(_buttons_indexes[i]);
-        bool push_button_level = (bool) digitalRead(_mux_gpio) == HIGH;
+
+        uint8_t gpio_samples = 0;
+        for (size_t i = 0; i < multisampling; i++)
+        {
+            gpio_samples += digitalRead(_mux_gpio);
+        }
+        
+        const float threshold = (float) (multisampling * HIGH) / 2.;
+        bool push_button_level = (bool) (gpio_samples > threshold);
 
         if (push_button_level != _push_buttons_events[i].pushed)
         {
@@ -41,7 +50,7 @@ bool PushButtonsController::update()
             if (!push_button_level)
             {
                 _push_buttons_events[i].click_events_pending++;
-                // log_i("Button click [%d] pending: %d", i, _push_buttons_events[i].click_events_pending);
+                // log_i("Button click [%d] pending: %d, sample_sum %d", i, _push_buttons_events[i].click_events_pending, gpio_samples);
             }
         }
     }
@@ -71,11 +80,11 @@ uint16_t PushButtonsController::get_push_buttons_events_flags()
 
 void PushButtonsController::consume_events(uint8_t consumed_clicks)
 {
-    log_i("consumed_clicks bits: %x", consumed_clicks);
+    // log_i("consumed_clicks bits: %x", consumed_clicks);
     for (int i = _num_buttons - 1; i >= 0; i--)
     {
         if (consumed_clicks & 0x01) {
-            log_i("Consume button[%d]", i);
+            // log_i("Consume button[%d]", i);
             _push_buttons_events[i].click_events_pending = (_push_buttons_events[i].click_events_pending - 1) % 2;
         }
         else {

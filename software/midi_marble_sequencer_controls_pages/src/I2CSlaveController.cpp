@@ -26,16 +26,16 @@ I2CSlaveController::I2CSlaveController(InteractionController *interaction_contro
 {
     I2CSlaveController::instance = this;
 
-    _read_buffer = (uint8_t *) malloc(sizeof(controls_main_display_t));
+    _read_buffer = (uint8_t *) malloc(sizeof(controls_pages_display_t));
 
     _requests_since_last_read = 0;
     _write_timer = NULL;
-    _write_buffer = (uint8_t *) malloc(sizeof(controls_main_value_t));
+    _write_buffer = (uint8_t *) malloc(sizeof(controls_pages_value_t));
     _write_buffer_lock = xSemaphoreCreateMutex();
     timer_semaphore = xSemaphoreCreateBinary();
     Wire.onReceive(on_receive_cb);
 	Wire.onRequest(on_request_cb);
-    while(!Wire.begin((uint8_t) I2C_CONFIG_CONTROLS_MAIN_ADDR)) {}
+    while(!Wire.begin((uint8_t) I2C_CONFIG_CONTROLS_PAGES_ADDR)) {}
 }
 
 void I2CSlaveController::main_task()
@@ -50,7 +50,7 @@ void I2CSlaveController::main_task()
 
 void I2CSlaveController::on_receive(int len)
 {
-    for (size_t i = 0; i < sizeof(controls_main_display_t) && Wire.available(); i++)
+    for (size_t i = 0; i < sizeof(controls_pages_display_t) && Wire.available(); i++)
     {
 		_read_buffer[i] = (uint8_t) Wire.read();
     }
@@ -64,7 +64,7 @@ void I2CSlaveController::on_receive(int len)
 
 
 
-    bool crc_check_ok = check_crc16(_read_buffer, sizeof(controls_main_display_t));
+    bool crc_check_ok = check_crc16(_read_buffer, sizeof(controls_pages_display_t));
 
     if (!crc_check_ok)
     {
@@ -72,11 +72,11 @@ void I2CSlaveController::on_receive(int len)
         return;
     }
 
-    controls_main_display_t controls_main_display;
-    memcpy(&controls_main_display, _read_buffer, sizeof(controls_main_display_t));
+    controls_pages_display_t controls_pages_display;
+    memcpy(&controls_pages_display, _read_buffer, sizeof(controls_pages_display_t));
 
-    _display_controller->update(controls_main_display);
-    _interaction_controller->consume_events(controls_main_display);
+    _display_controller->update(controls_pages_display);
+    _interaction_controller->consume_events(controls_pages_display);
 }
 
 void I2CSlaveController::on_request()
@@ -106,14 +106,14 @@ void I2CSlaveController::_schedule_next_write()
 void I2CSlaveController::write_to_buffer()
 {
     xSemaphoreTake(_write_buffer_lock, portMAX_DELAY);
-    Wire.slaveWrite(_write_buffer, sizeof(controls_main_value_t));
+    Wire.slaveWrite(_write_buffer, sizeof(controls_pages_value_t));
     xSemaphoreGive(_write_buffer_lock);
 }
 
-void I2CSlaveController::on_event(controls_main_value_t controls_main_value)
+void I2CSlaveController::on_event(controls_pages_value_t controls_pages_value)
 {
     xSemaphoreTake(_write_buffer_lock, portMAX_DELAY);
-    memcpy(_write_buffer, &controls_main_value, sizeof(controls_main_value_t));
-	compute_crc16(_write_buffer, sizeof(controls_main_value_t));
+    memcpy(_write_buffer, &controls_pages_value, sizeof(controls_pages_value_t));
+	compute_crc16(_write_buffer, sizeof(controls_pages_value_t));
     xSemaphoreGive(_write_buffer_lock);
 }

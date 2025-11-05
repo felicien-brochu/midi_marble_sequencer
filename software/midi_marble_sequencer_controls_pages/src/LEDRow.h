@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LEDArray.h>
+#include <LEDArray_arduino.h>
 
 class LEDRow
 {

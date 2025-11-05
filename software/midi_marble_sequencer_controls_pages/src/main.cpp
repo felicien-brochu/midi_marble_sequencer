@@ -1,15 +1,12 @@
 #include "BPMPotentiometer.h"
 #include "I2CSlaveController.h"
-#include "LEDColumn.h"
-#include "PlayPauseLED.h"
-#include "PlayPauseSwitch.h"
 #include "PushButtonsController.h"
-#include "RotaryButtonsController.h"
 #include "InteractionController.h"
 #include "DisplayController.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <driver/gpio.h>
 #include <Arduino.h>
 
 void i2c_slave_controller_task(void *i2c_slave_controller_arg)
@@ -18,27 +15,6 @@ void i2c_slave_controller_task(void *i2c_slave_controller_arg)
     i2c_slave_controller->main_task();
 }
 
-void main_test_leds()
-{
-    LEDColumn led_column;
-    PlayPauseLED play_pause_led;
-
-    while (1)
-    {
-        for (size_t i = 0; i < 8; i++)
-        {
-            vTaskDelay(pdMS_TO_TICKS(600));
-            if (i % 2 == 0) {
-                play_pause_led.enable();
-            }
-            else {
-                play_pause_led.disable();
-            }
-            led_column.disable_all_leds();
-            led_column.enable_led(i);
-        }
-    }
-}
 
 DisplayController *display_controller = new DisplayController();
 InteractionController *interaction_controller = new InteractionController();
@@ -57,4 +33,5 @@ void setup()
 void loop()
 {
     interaction_controller->update();
+    // vTaskDelay(pdMS_TO_TICKS(I2C_CONFIG_TRANSACTION_DELAY_US / 1000));
 }

@@ -28,6 +28,7 @@ private:
     uint8_t *_main_write_buffer;
     uint8_t *_pages_write_buffer;
     controls_main_value_t _last_controls_main_value;
+    controls_pages_value_t _last_controls_pages_value;
 
     void _init_main_controls_i2c();
     void _init_pages_controls_i2c();

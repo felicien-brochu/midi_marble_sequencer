@@ -11,7 +11,6 @@ InteractionController::InteractionController() : _mux(BUTTONS_MUX_S0_GPIO, BUTTO
     _play_pause_switch = new PlayPauseSwitch();
 
     _rotary_buttons_controller = new RotaryButtonsController(_mux, BUTTONS_MUX_ADC_GPIO);
-    // PushButtonsController must be initialized after RotaryButtonsController because of GPIO settings order.
     _push_buttons_controller = new PushButtonsController(_mux, BUTTONS_MUX_SIGNAL_GPIO, _tracks_buttons_indexes, SEQUENCER_TRACKS_NUM);
 }
 
@@ -36,14 +35,6 @@ controls_main_value_t InteractionController::get_event()
     controls_main_value.play_pause_switch_pushed = _play_pause_switch->is_pushed();
     
     controls_main_value.tracks_push_buttons = _push_buttons_controller->get_push_buttons_events_flags();
-
-    // for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
-    // {
-    //     if (push_buttons_events[i].click_events_pending > 0)
-    //     {
-    //         log_i("click[%d] registered", i);
-    //     }
-    // }
 
     rotary_button_state_t *rotary_buttons_states = _rotary_buttons_controller->get_rotary_buttons_states();
     memcpy(controls_main_value.rotary_buttons_states, rotary_buttons_states, SEQUENCER_MEASURES_NUM * sizeof(rotary_button_state_t));

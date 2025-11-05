@@ -80,35 +80,7 @@ controls_pages_display_t Sequencer::get_controls_pages_display()
 void Sequencer::handle_controls_pages_event(const controls_pages_value_t controls_pages_value)
 {
     _set_played_pages_from_buttons(controls_pages_value.played_pages_buttons);
-    _set_edited_page_from_buttons(controls_pages_value.edited_pages_buttons);
-}
-
-void Sequencer::_set_played_pages_from_buttons(const push_button_event_t *buttons_events)
-{
-    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
-    {
-        uint8_t click_events_pending = buttons_events[i].click_events_pending;
-        // If odd number of clicks toggle played page state
-        if (click_events_pending % 2 != 0)
-        {
-            ESP_LOGI(TAG, "Played page btn clck [%d]", i);
-            _played_pages[i] = !_played_pages[i];
-        }
-    }
-}
-
-void Sequencer::_set_edited_page_from_buttons(const push_button_event_t *buttons_events)
-{
-    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
-    {
-        uint8_t click_events_pending = buttons_events[i].click_events_pending;
-        // If odd number of clicks toggle played page state
-        if (click_events_pending % 2 != 0)
-        {
-            ESP_LOGI(TAG, "Edited page btn clck [%d]", i);
-            _edited_page_index = i;
-        }
-    }
+    _set_edited_pages_from_buttons(controls_pages_value.edited_pages_buttons);
 }
 
 bool Sequencer::is_playing()
@@ -214,6 +186,14 @@ void Sequencer::set_locked_measure_marble_types(measure_lock_event_t *event, mar
     page.set_measure_marble_types(event->measure_index, measure_marble_types);
     _measure_lock_events[event->measure_index] = NULL;
 }
+
+const bool *Sequencer::get_enabled_tracks()
+{
+    return _tracks_enabled;
+}
+
+
+
 
 void Sequencer::_set_playing_from_play_pause_switch(bool play_pause_switch_pushed)
 {
@@ -362,7 +342,36 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
     }
 }
 
-const bool *Sequencer::get_enabled_tracks()
+
+void Sequencer::_set_played_pages_from_buttons(const uint16_t push_buttons_events)
 {
-    return _tracks_enabled;
+    uint16_t events = push_buttons_events;
+
+    for (size_t i = SEQUENCER_TRACKS_NUM; i > 0; i--)
+    {
+        // has odd number of clicks pending
+        if (events & 0x2)
+        {
+            // ESP_LOGI(TAG, "Played page btn clck [%d]", i - 1);
+            _played_pages[i - 1] = !_played_pages[i - 1];
+        }
+        events = events >> 2;
+    }
+}
+
+void Sequencer::_set_edited_pages_from_buttons(const uint16_t push_buttons_events)
+{
+    uint16_t events = push_buttons_events;
+
+    for (size_t i = SEQUENCER_TRACKS_NUM; i > 0; i--)
+    {
+        // has odd number of clicks pending
+        if (events & 0x2)
+        {
+            // ESP_LOGI(TAG, "Edited page btn clck [%d]", i - 1);
+            _edited_page_index = i - 1;
+            return;
+        }
+        events = events >> 2;
+    }
 }
