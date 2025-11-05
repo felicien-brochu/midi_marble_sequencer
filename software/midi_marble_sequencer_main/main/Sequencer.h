@@ -2,6 +2,7 @@
 
 #include "sequencer_config.h"
 #include "controls_main_common.h"
+#include "controls_pages_common.h"
 #include "SequencerPage.h"
 
 
@@ -33,6 +34,10 @@ public:
     void set_sequencer_callback(sequencer_callback_t sequencer_callback, void *sequencer_callback_context);
     controls_main_display_t get_controls_main_display();
     void handle_controls_main_event(const controls_main_value_t controls_main_value);
+    controls_pages_display_t get_controls_pages_display();
+    void handle_controls_pages_event(const controls_pages_value_t controls_pages_value);
+    void _set_played_pages_from_buttons(const push_button_event_t *played_pages_buttons_events);
+    void _set_edited_page_from_buttons(const push_button_event_t *edited_pages_buttons_events);
     bool is_playing();
     // Return eighth note duration in us.
     uint64_t get_eighth_note_duration();
@@ -73,6 +78,6 @@ private:
     
     void _set_playing_from_play_pause_switch(bool play_pause_switch_pushed);
     void _set_bpm_from_potentiometer(const float potentiometer_value);
-    void _set_tracks_enabled_from_push_buttons(const push_button_event_t *push_buttons_events);
+    void _set_tracks_enabled_from_push_buttons(const uint16_t push_buttons_events);
     void _set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states);
 };

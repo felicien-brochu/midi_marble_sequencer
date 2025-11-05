@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IRSensBoards.h"
-#include "CD74HC4067.h"
+#include "CD74HC4067_espidf.h"
 
 #define BEATS_SNAKE_LED_POWER_PIN GPIO_NUM_10
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #define SEQUENCER_TRACKS_NUM 8
 #define SEQUENCER_EIGHTH_NOTE_NUM 32
 #define SEQUENCER_MEASURES_NUM 4

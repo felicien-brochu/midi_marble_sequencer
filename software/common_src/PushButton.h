@@ -1,6 +1,6 @@
 #pragma once
 
-#include <soc/gpio_num.h>
+#include <driver/gpio.h>
 
 typedef enum
 {

@@ -5,6 +5,7 @@
 #include <cstring>
 #include <esp_err.h>
 #include <esp_log.h>
+#include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -18,33 +19,58 @@ static void _control_boards_controller_task(void *control_boards_controller_arg)
 
 ControlBoardsController::ControlBoardsController(Sequencer &sequencer) : _sequencer(sequencer)
 {
-    _write_buffer = (uint8_t *) malloc(sizeof(controls_main_display_t));
-    _read_buffer = (uint8_t *) malloc(sizeof(controls_main_value_t));
-
     i2c_master_bus_config_t i2c_master_config = {
         .i2c_port = I2C_CONFIG_PORT,
         .sda_io_num = I2C_MASTER_SDA_GPIO,
         .scl_io_num = I2C_MASTER_SCL_GPIO,
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
+        .intr_priority = 0,
+        // .trans_queue_depth = 128,
         .flags = {
             .enable_internal_pullup = false,
+            .allow_pd = false,
         }
     };
 
     ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_master_config, &_i2c_bus_handle));
 
+    _init_main_controls_i2c();
+    _init_pages_controls_i2c();
+}
+
+void ControlBoardsController::_init_main_controls_i2c()
+{
+    _main_write_buffer = (uint8_t *) malloc(sizeof(controls_main_display_t));
+
     i2c_device_config_t controls_main_device_config = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = I2C_CONFIG_CONTROLS_MAIN_ADDR,
         .scl_speed_hz = I2C_CONFIG_CLOCK_SPEED_HZ,
-        .scl_wait_us = 0,
+        .scl_wait_us = 5000,
         .flags = {
-            .disable_ack_check = false
+            .disable_ack_check = true
         }
     };
 
     ESP_ERROR_CHECK(i2c_master_bus_add_device(_i2c_bus_handle, &controls_main_device_config, &_controls_main_device_handle));
+}
+
+void ControlBoardsController::_init_pages_controls_i2c()
+{
+    _pages_write_buffer = (uint8_t *) malloc(sizeof(controls_pages_display_t));
+
+    i2c_device_config_t controls_pages_device_config = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = I2C_CONFIG_CONTROLS_PAGES_ADDR,
+        .scl_speed_hz = I2C_CONFIG_CLOCK_SPEED_HZ,
+        .scl_wait_us = 0,
+        .flags = {
+            .disable_ack_check = true
+        }
+    };
+
+    ESP_ERROR_CHECK(i2c_master_bus_add_device(_i2c_bus_handle, &controls_pages_device_config, &_controls_pages_device_handle));
 }
 
 void ControlBoardsController::start_control_boards_task()
@@ -55,46 +81,174 @@ void ControlBoardsController::start_control_boards_task()
 
 void ControlBoardsController::main_task()
 {
-    esp_err_t err;
     while (true)
     {
-        // while (true)
-        // {
-        //     err = i2c_master_probe(_i2c_bus_handle, I2C_CONFIG_CONTROLS_MAIN_ADDR, -1);
-        //     if (err == ESP_OK)
-        //     {
-        //         break;
-        //     }
-        // }
+        _talk_to_controls_main();
+        _talk_to_controls_pages();
+        vTaskDelay(pdMS_TO_TICKS(I2C_CONFIG_TRANSACTION_DELAY_US / 1000));
+    }
+}
 
-        while (true)
+void ControlBoardsController::_talk_to_controls_main()
+{
+    esp_err_t err;
+
+    while (true)
+    {
+        err = _read_controls_main_events();
+        if (err == ESP_OK)
         {
-            controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
-            memcpy(_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
-
-            compute_crc16(_write_buffer, sizeof(controls_main_display_t));
-
-            err = i2c_master_transmit_receive(_controls_main_device_handle, _write_buffer, sizeof(controls_main_display_t), _read_buffer, sizeof(controls_main_value_t), -1);
-
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "transmit_receive err : %x", err);
-                break;
-            }
-
-            if (!check_crc16(_read_buffer, sizeof(controls_main_value_t)))
-            {
-                ESP_LOGE(TAG, "CRC check FAILED!");
-                ESP_ERROR_CHECK(i2c_master_bus_reset(_i2c_bus_handle));
-                break;
-            }
-            
-            controls_main_value_t controls_main_value;
-            memcpy(&controls_main_value, _read_buffer, sizeof(controls_main_value_t));
-
-            _sequencer.handle_controls_main_event(controls_main_value);
-            
-            vTaskDelay(pdMS_TO_TICKS(I2C_MASTER_TIMER_PERIOD / 1000));
+            break;
         }
     }
+
+    while (true)
+    {
+        err = _transmit_controls_main_display();
+        if (err == ESP_OK)
+        {
+            break;
+        }
+    }
+}
+
+esp_err_t ControlBoardsController::_read_controls_main_events()
+{
+    esp_err_t err = ESP_OK;
+
+    controls_main_value_t controls_main_value;
+    err = i2c_master_receive(_controls_main_device_handle, (uint8_t *) &controls_main_value, sizeof(controls_main_value_t), -1);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "controls_main receive err: %x", err);
+        return err;
+    }
+
+    if (!check_crc16((uint8_t *) &controls_main_value, sizeof(controls_main_value_t)))
+    {
+        err = ESP_ERR_INVALID_CRC;
+        ESP_LOGE(TAG, "controls_main CRC check FAILED!");
+        return err;
+    }
+
+    _sequencer.handle_controls_main_event(controls_main_value);
+    _last_controls_main_value = controls_main_value;
+
+    return err;
+}
+
+static uint8_t _push_buttons_events_to_consumed_clicks(uint16_t push_buttons_events, const uint8_t num_buttons)
+{
+    uint8_t consumed_clicks = 0;
+
+    for (size_t i = num_buttons; i > 0; i--)
+    {
+        // odd number of clicks consumed
+        if (push_buttons_events & 0x2)
+        {
+            consumed_clicks = consumed_clicks | 0x80;
+        }
+
+        if (i <= 1)
+        {
+            break;
+        }
+
+        push_buttons_events = push_buttons_events >> 2;
+        consumed_clicks = consumed_clicks >> 1;
+    }
+    
+    return consumed_clicks;
+}
+
+esp_err_t ControlBoardsController::_transmit_controls_main_display()
+{
+    esp_err_t err = ESP_OK;
+
+    controls_main_display_t controls_main_display = _sequencer.get_controls_main_display();
+
+    controls_main_display.tracks_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_main_value.tracks_push_buttons, SEQUENCER_TRACKS_NUM);
+
+
+    memcpy(_main_write_buffer, &controls_main_display, sizeof(controls_main_display_t));
+    compute_crc16(_main_write_buffer, sizeof(controls_main_display_t));
+
+    err = i2c_master_transmit(_controls_main_device_handle, _main_write_buffer, sizeof(controls_main_display_t), -1);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "controls_main transmit err: %x", err);
+        return err;
+    }
+
+    return err;
+}
+
+void ControlBoardsController::_talk_to_controls_pages()
+{
+    esp_err_t err;
+
+    while (true)
+    {
+        err = _read_controls_pages_events();
+        if (err == ESP_OK)
+        {
+            break;
+        }
+    }
+
+    while (true)
+    {
+        err = _transmit_controls_pages_display();
+        if (err == ESP_OK)
+        {
+            break;
+        }
+    }
+}
+
+esp_err_t ControlBoardsController::_read_controls_pages_events()
+{
+    esp_err_t err = ESP_OK;
+
+    controls_pages_value_t controls_pages_value;
+    err = i2c_master_receive(_controls_pages_device_handle, (uint8_t *) &controls_pages_value, sizeof(controls_pages_value_t), -1);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "controls_pages receive err: %x", err);
+        return err;
+    }
+
+    if (!check_crc16((uint8_t *) &controls_pages_value, sizeof(controls_pages_value_t)))
+    {
+        err = ESP_ERR_INVALID_CRC;
+        ESP_LOGE(TAG, "controls_pages CRC check FAILED!");
+        return err;
+    }
+
+    _sequencer.handle_controls_pages_event(controls_pages_value);
+
+    return err;
+}
+
+esp_err_t ControlBoardsController::_transmit_controls_pages_display()
+{
+    esp_err_t err = ESP_OK;
+
+    controls_pages_display_t controls_pages_display = _sequencer.get_controls_pages_display();
+    memcpy(_pages_write_buffer, &controls_pages_display, sizeof(controls_pages_display_t));
+
+    compute_crc16(_pages_write_buffer, sizeof(controls_pages_display_t));
+
+    err = i2c_master_transmit(_controls_pages_device_handle, _pages_write_buffer, sizeof(controls_pages_display_t), -1);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "controls_pages transmit err: %x", err);
+        return err;
+    }
+
+    return err;
 }

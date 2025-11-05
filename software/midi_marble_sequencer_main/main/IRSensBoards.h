@@ -2,7 +2,7 @@
 
 #include <driver/gpio.h>
 #include <hal/adc_types.h>
-#include <CD74HC4067.h>
+#include <CD74HC4067_espidf.h>
 
 #define NUM_IR_SENS_BOARDS 16
 

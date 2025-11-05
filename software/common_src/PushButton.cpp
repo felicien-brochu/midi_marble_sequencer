@@ -1,5 +1,4 @@
 #include "PushButton.h"
-#include <driver/gpio.h>
 
 PushButton::PushButton(gpio_num_t gpio_num, bool one_is_up)
 {
