@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LEDColumn.h"
-#include "PlayPauseLED.h"
+#include "PlayPauseBPMLED.h"
 
 #include "controls_main_common.h"
 
@@ -14,5 +14,5 @@ public:
 
 private:
     LEDColumn _tracks_leds;
-    PlayPauseLED _play_pause_led;
+    PlayPauseBPMLED _play_pause_led;
 };

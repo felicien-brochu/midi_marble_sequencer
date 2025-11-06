@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sequencer_config.h"
-#include "controls_common.h"
 
 #include <cstdint>
 

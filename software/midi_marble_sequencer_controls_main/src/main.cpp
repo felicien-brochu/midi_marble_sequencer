@@ -1,10 +1,5 @@
 #include "BPMPotentiometer.h"
 #include "I2CSlaveController.h"
-#include "LEDColumn.h"
-#include "PlayPauseLED.h"
-#include "PlayPauseSwitch.h"
-#include "PushButtonsController.h"
-#include "RotaryButtonsController.h"
 #include "InteractionController.h"
 #include "DisplayController.h"
 
@@ -21,7 +16,7 @@ void i2c_slave_controller_task(void *i2c_slave_controller_arg)
 void main_test_leds()
 {
     LEDColumn led_column;
-    PlayPauseLED play_pause_led;
+    PlayPauseBPMLED play_pause_led;
 
     while (1)
     {

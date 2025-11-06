@@ -50,6 +50,7 @@ controls_main_display_t Sequencer::get_controls_main_display()
     controls_main_display_t controls_main_display;
     controls_main_display.play_pause_led_enabled = _is_playing;
     memcpy(controls_main_display.tracks_led_enabled, _tracks_enabled, sizeof(_tracks_enabled));
+    controls_main_display.bpm = !_is_playing ? _bpm : -1;
 
     return controls_main_display;
 }

@@ -1,9 +1,13 @@
 #pragma once
 
 #include "CD74HC4067_arduino.h"
-#include "controls_common.h"
 
 #define PUSH_BUTTONS_CONTROLLER_MAX_BTN 8
+
+typedef struct {
+    bool pushed;
+    uint8_t click_events_pending;
+} push_button_event_t;
 
 class PushButtonsController
 {

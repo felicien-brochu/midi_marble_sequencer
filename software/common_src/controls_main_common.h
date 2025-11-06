@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sequencer_config.h"
-#include "controls_common.h"
 
 #include <cstdint>
 
@@ -28,6 +27,7 @@ typedef struct
 {
     bool play_pause_led_enabled;
     bool tracks_led_enabled[SEQUENCER_TRACKS_NUM];
+    float bpm;
     uint8_t tracks_buttons_clicks_consumed;
     uint16_t crc16;
 } controls_main_display_t;
