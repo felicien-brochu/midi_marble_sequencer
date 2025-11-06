@@ -29,7 +29,7 @@ PlayPauseBPMLED::PlayPauseBPMLED()
     disable();
 
     TaskHandle_t _bpm_task_handle;
-    xTaskCreate(_bpm_task_cb, "BPM LED task", 10000, this, 1, &_bpm_task_handle);
+    xTaskCreate(_bpm_task_cb, "BPM LED task", 2048, this, 3, &_bpm_task_handle);
 }
 
 void PlayPauseBPMLED::bpm_task()
