@@ -3,7 +3,7 @@
 #include "i2c_config.h"
 #include "controls_main_common.h"
 #include "controls_pages_common.h"
-#include "Sequencer.h"
+#include "IControlBoardsListener.h"
 
 #include <driver/i2c_master.h>
 
@@ -13,13 +13,16 @@
 class ControlBoardsController
 {
 public:
-    ControlBoardsController(Sequencer &sequencer);
+    ControlBoardsController(IControlBoardsListener &listener);
 
-    void start_control_boards_task();
+    void start_main_task();
+    void start_display_only_task();
     void main_task();
+    void display_only_task();
+
 
 private:
-    Sequencer &_sequencer;
+    IControlBoardsListener &_listener;
 
     i2c_master_bus_handle_t _i2c_bus_handle;
     i2c_master_dev_handle_t _controls_main_device_handle;
@@ -35,8 +38,10 @@ private:
 
     void _talk_to_controls_main();
     esp_err_t _read_controls_main_events();
-    esp_err_t _transmit_controls_main_display();
+    esp_err_t _transmit_controls_main_display(controls_main_display_t controls_main_display);
+    controls_main_display_t _get_controls_main_display();
     void _talk_to_controls_pages();
     esp_err_t _read_controls_pages_events();
-    esp_err_t _transmit_controls_pages_display();
+    esp_err_t _transmit_controls_pages_display(controls_pages_display_t controls_pages_display);
+    controls_pages_display_t _get_controls_pages_display();
 };

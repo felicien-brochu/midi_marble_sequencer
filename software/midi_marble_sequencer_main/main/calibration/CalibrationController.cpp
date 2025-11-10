@@ -1,73 +1,18 @@
-#include "HorizontalCalibration.h"
+#include "CalibrationController.h"
+#include "CalibrationButton.h"
+#include "CalibrationStorage.h"
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <esp_log.h>
 
-ColorStatistics::ColorStatistics()
-{
-    min = 1 << 15;
-    max = 0;
-    sum = 0;
-    nb_samples = 0;
-    mean = 0;
-}
+const static char *TAG = "CalibrationController";
 
-void ColorStatistics::push_sample(int value_off, int value_on)
-{
-    int diff = value_off - value_on;
-
-    if (min > diff)
-    {
-        min = diff;
-    }
-
-    if (max < diff)
-    {
-        max = diff;
-    }
-
-    sum += diff;
-
-    nb_samples++;
-    mean = sum / nb_samples;
-}
-
-
-SensorStatistics::SensorStatistics()
-{
-}
-
-void SensorStatistics::push_sample(marble_type_t color, int value_off, int value_on)
-{
-    color_statistics[color].push_sample(value_off, value_on);
-}
-
-void SensorStatistics::compute_thresholds(uint16_t *thresholds)
-{
-    for (size_t i = 0; i < NUM_MARBLE_TYPE - 1; i++)
-    {
-        // uint16_t up_var = color_statistics[i].max - color_statistics[i].mean;
-        // uint16_t down_var = color_statistics[i + 1].mean - color_statistics[i + 1].min;
-
-        // float k = ((float) up_var) / (up_var + down_var);
-        // uint16_t threshold = (uint16_t) (color_statistics[i].max + k * (color_statistics[i + 1].min - color_statistics[i].max));
-
-        // // First and last threshold are not scaled by variance because first and last marble types have truncated (saturated) measurements
-        // // Instead we choose the middle between low max et high min.
-        // if (i == 0 || i == NUM_MARBLE_TYPE - 2)
-        // {
-        uint16_t threshold = color_statistics[i].mean + ((color_statistics[i + 1].mean - color_statistics[i].mean) / 2);
-        // }
-        thresholds[i] = threshold;
-    }
-}
-
-
-HorizontalCalibration::HorizontalCalibration(int marbles_for_one_color, int samples_by_test, int ms_between_samples, int multisampling) : _board_reader(&_ir_sens_boards), _push_button(GPIO_NUM_3, false)
+CalibrationController::CalibrationController(int marbles_for_one_color, int samples_by_test, int ms_between_samples) : _board_reader(&_ir_sens_boards), _push_button(CalibrationButton::instance()), _control_boards_controller(_display)
 {
     _marbles_for_one_color = marbles_for_one_color;
     _samples_by_test = samples_by_test;
     _ms_between_samples = ms_between_samples;
-    _multisampling = multisampling;
 
     _calibration_state = HORIZONTAL_CALIBRATION_IDLE;
     _measure_count = 0;
@@ -84,10 +29,10 @@ HorizontalCalibration::HorizontalCalibration(int marbles_for_one_color, int samp
     _values_on = (uint32_t*) malloc(NUM_IR_SENS_BY_BOARD * sizeof(uint32_t));
     _values_off = (uint32_t*) malloc(NUM_IR_SENS_BY_BOARD * sizeof(uint32_t));
 
-    vTaskDelay(pdMS_TO_TICKS(3000));
+    _control_boards_controller.start_main_task();
 }
 
-void HorizontalCalibration::update()
+void CalibrationController::update()
 {
     if (_calibration_state == HORIZONTAL_CALIBRATION_IDLE)
     {
@@ -103,19 +48,19 @@ void HorizontalCalibration::update()
     }
 }
 
-bool HorizontalCalibration::is_complete()
+bool CalibrationController::is_complete()
 {
     return _calibration_state == HORIZONTAL_CALIBRATION_COMPLETE;
 }
 
-void HorizontalCalibration::_idle_state_update()
+void CalibrationController::_idle_state_update()
 {
     _print_marble_placement();
 
     _calibration_state = HORIZONTAL_CALIBRATION_WAIT_PLACEMENT;
 }
 
-void HorizontalCalibration::_waiting_placement_state_update()
+void CalibrationController::_waiting_placement_state_update()
 {
     if (!_push_button.has_click_listener()) {
         _push_button.start_listening_clicks();
@@ -130,35 +75,35 @@ void HorizontalCalibration::_waiting_placement_state_update()
         _calibration_state = HORIZONTAL_CALIBRATION_READ;
 
         printf("Measuring...\n");
+
+        _display.hide_marble_placement();
     }
 }
 
-void HorizontalCalibration::_read_state_update()
+void CalibrationController::_read_state_update()
 {
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
     {
         for (int i = 0; i < _samples_by_test; i++) {
-            _board_reader.read_board_values(_values_off, _values_on, board_index, _multisampling);
+            _board_reader.read_board_values(_values_off, _values_on, board_index, IR_SENSOR_MULTISAMPLING);
 
             for (int j = 0; j < NUM_IR_SENS_BY_BOARD; j++) {
                 _statistics[board_index * NUM_IR_SENS_BY_BOARD + j]->push_sample(_get_ir_sens_marble_type(j), _values_off[j], _values_on[j]);
             }
-            vTaskDelay(pdMS_TO_TICKS(_ms_between_samples));
+
+            if (_ms_between_samples >= 10)
+            {
+                vTaskDelay(pdMS_TO_TICKS(_ms_between_samples));
+            }
         }
     }
         
     
     _measure_count++;
 
-    if (_measure_count >= (NUM_IR_SENS_BY_BOARD / 2) * _marbles_for_one_color)
+    if (_measure_count >= _get_total_measure_count())
     {
-        _calibration_state = HORIZONTAL_CALIBRATION_COMPLETE;
-        _print_statistics();
-        _print_csv_data();
-        _print_c_array_thresholds();
-        // _print_c_array_means();
-        
-        fflush(stdout);
+        _on_measure_complete();
     }
     else
     {
@@ -166,20 +111,127 @@ void HorizontalCalibration::_read_state_update()
     }
 }
 
-void HorizontalCalibration::_print_marble_placement()
+void CalibrationController::_on_measure_complete()
 {
+    _calibration_state = HORIZONTAL_CALIBRATION_COMPLETE;
+    // _print_statistics();
+    // _print_c_array_means();
+    _display.show_completion_rate(1./8.);
+
+    _print_csv_data();
+    fflush(stdout);
+    _display.show_completion_rate(3./8.);
+
+    _print_c_array_thresholds();
+    fflush(stdout);
+    _display.show_completion_rate(5./8.);
+
+    bool confirmed = _ask_confirmation_to_save();
+    if (!confirmed) {
+        return;
+    }
+    _save_calibration_data_to_nvs();
+    ESP_LOGI(TAG, "Calibration data saved successfuly.");
+    _display.show_completion_rate(8./8.);
+}
+
+void CalibrationController::_sensor_statistics_to_thresholds(uint16_t (*out_thresholds)[NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1])
+{
+    for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
+    {
+        for (int ir_sens_channel = 0; ir_sens_channel < NUM_IR_SENS_BY_BOARD; ir_sens_channel++)
+        {
+            SensorStatistics *sensor_stats = _statistics[board_index * NUM_IR_SENS_BY_BOARD + ir_sens_channel];
+            sensor_stats->compute_thresholds(out_thresholds[board_index][ir_sens_channel]);
+        }
+    }
+}
+
+void CalibrationController::_save_calibration_data_to_nvs()
+{
+    CalibrationStorage storage;
+    uint16_t (*marble_types_thresholds)[NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1] = (uint16_t (*)[NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1]) malloc(sizeof(uint16_t[NUM_IR_SENS_BOARDS][NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1]));
+
+    _sensor_statistics_to_thresholds(marble_types_thresholds);
+
+    esp_err_t err = storage.save_calibration_data(marble_types_thresholds);
+
+    if (err == ESP_OK)
+    {
+        printf("Calibration data saved to NVS.\n");
+    }
+}
+
+bool CalibrationController::_ask_confirmation_to_save()
+{
+    printf("Save calibration data? Press button for 5 seconds to confirm.\n");
+
+    // Wait for button down
+    while (true)
+    {
+        _push_button.update();
+
+        if (_push_button.is_down()) {
+            break;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    // Wait for 5 seconds of button hold
+    uint32_t hold_start_time = xTaskGetTickCount();
+    while (true)
+    {
+        _push_button.update();
+
+        if (_push_button.is_up()) {
+            printf("Calibration data NOT saved.\n");
+            return false;
+        }
+
+        TickType_t current_time = xTaskGetTickCount();
+        if (current_time - hold_start_time >= pdMS_TO_TICKS(5000)) {
+            return true;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    return false;
+}
+
+int CalibrationController::_get_total_measure_count()
+{
+    return (SEQUENCER_TRACKS_NUM / _get_num_marble_types_groups()) * _marbles_for_one_color;
+}
+
+int CalibrationController::_get_num_marble_types_groups()
+{
+    return (SEQUENCER_TRACKS_NUM / NUM_MARBLE_TYPE);
+}
+
+void CalibrationController::_print_marble_placement()
+{
+    _display.hide_marble_placement();
     printf("|    0   |    1   |    2   |    3   |    4   |    5   |    6   |    7   |\n");
 
     for (int i = 0; i < 8; i++)
     {
-        printf("|%s", marble_type_to_string(_get_ir_sens_marble_type(i)));
+        marble_type_t marble_type = _get_ir_sens_marble_type(i);
+        printf("|%s", marble_type_to_string(marble_type));
+
+        if (marble_type != NO_MARBLE) {
+            _display.set_led_enabled(0, i, true);
+        }
     }
     printf("|\n");
 
-    printf("Measure %d/%d\n", _measure_count + 1, (NUM_IR_SENS_BY_BOARD / 2) * _marbles_for_one_color);
+    printf("Measure %d/%d\n", _measure_count + 1, _get_total_measure_count());
+
+    _display.show_completion_rate((float)(_measure_count + 1) / (float) _get_total_measure_count());
 }
 
-void HorizontalCalibration::_print_marble_intervals_for_sensor(uint8_t board_index, uint8_t ir_sens_channel)
+void CalibrationController::_print_marble_intervals_for_sensor(uint8_t board_index, uint8_t ir_sens_channel)
 {
     SensorStatistics *sensor_stats = _statistics[board_index * NUM_IR_SENS_BY_BOARD + ir_sens_channel];
     printf("%2dSens%2d:", board_index, ir_sens_channel);
@@ -199,7 +251,7 @@ void HorizontalCalibration::_print_marble_intervals_for_sensor(uint8_t board_ind
     printf("\n");
 }
 
-void HorizontalCalibration::_print_statistics()
+void CalibrationController::_print_statistics()
 {
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
     {
@@ -213,7 +265,7 @@ void HorizontalCalibration::_print_statistics()
     }
 }
 
-void HorizontalCalibration::_print_csv_data()
+void CalibrationController::_print_csv_data()
 {
     printf("board;sensor;marble_color;min_value;max_value;mean;low_threshold;high_threshold\n");
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
@@ -251,7 +303,7 @@ void HorizontalCalibration::_print_csv_data()
     }
 }
 
-void HorizontalCalibration::_print_c_array_thresholds()
+void CalibrationController::_print_c_array_thresholds()
 {
     printf("const uint16_t marble_types_thresholds[NUM_IR_SENS_BOARDS][NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1] = {\n");
 
@@ -300,7 +352,7 @@ void HorizontalCalibration::_print_c_array_thresholds()
     printf("};\n");
 }
 
-void HorizontalCalibration::_print_c_array_means()
+void CalibrationController::_print_c_array_means()
 {
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
     {
@@ -333,12 +385,12 @@ void HorizontalCalibration::_print_c_array_means()
     }
 }
 
-marble_type_t HorizontalCalibration::_get_ir_sens_marble_type(uint8_t ir_sens_channel)
+marble_type_t CalibrationController::_get_ir_sens_marble_type(uint8_t ir_sens_channel)
 {
     int marble_type;
     uint8_t sensor_line;
     
-    if (ir_sens_channel < (NUM_IR_SENS_BY_BOARD / 2))
+    if (ir_sens_channel < SEQUENCER_TRACKS_NUM)
     {
         sensor_line = ir_sens_channel;
     }
@@ -349,10 +401,12 @@ marble_type_t HorizontalCalibration::_get_ir_sens_marble_type(uint8_t ir_sens_ch
 
     uint8_t color_offset = _measure_count / _marbles_for_one_color;
 
-    marble_type = (sensor_line + color_offset) % (NUM_IR_SENS_BY_BOARD / 2);
-
-    if (marble_type >= NUM_MARBLE_TYPE) {
+    marble_type = (sensor_line + color_offset) % SEQUENCER_TRACKS_NUM;
+    if (_get_num_marble_types_groups() <= 1 && marble_type >= NUM_MARBLE_TYPE) {
         marble_type = NO_MARBLE;
+    }
+    else {
+        marble_type = marble_type % NUM_MARBLE_TYPE;
     }
 
     return static_cast<marble_type_t>(marble_type);

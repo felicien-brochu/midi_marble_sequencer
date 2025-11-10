@@ -4,6 +4,7 @@
 #include "controls_main_common.h"
 #include "controls_pages_common.h"
 #include "SequencerPage.h"
+#include "IControlBoardsListener.h"
 
 
 #define SEQUENCER_BPM_MIN 20
@@ -26,7 +27,7 @@ typedef struct {
 } measure_lock_event_t;
 
 
-class Sequencer
+class Sequencer : public IControlBoardsListener
 {
 public:
     Sequencer();

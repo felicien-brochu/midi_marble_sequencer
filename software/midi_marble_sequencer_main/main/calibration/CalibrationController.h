@@ -2,6 +2,9 @@
 #include "IRSensReader.h"
 #include "PushButton.h"
 #include "marble_type.h"
+#include "CalibrationDisplay.h"
+#include "ControlBoardsController.h"
+#include "SensorStatistics.h"
 
 typedef enum
 {
@@ -9,39 +12,13 @@ typedef enum
     HORIZONTAL_CALIBRATION_WAIT_PLACEMENT,
     HORIZONTAL_CALIBRATION_READ,
     HORIZONTAL_CALIBRATION_COMPLETE,
-} horizontal_calibration_state_t;
+} calibration_state_t;
 
-class ColorStatistics
-{
-public:
-    ColorStatistics();
-
-    void push_sample(int value_off, int value_on);
-
-    uint16_t min;
-    uint16_t max;
-    uint32_t sum;
-    uint16_t nb_samples;
-    uint16_t mean;
-};
-
-class SensorStatistics
-{
-public:
-    SensorStatistics();
-
-    void push_sample(marble_type_t color, int value_off, int value_on);
-    void compute_thresholds(uint16_t *thresholds);
-
-    ColorStatistics color_statistics[NUM_MARBLE_TYPE];
-};
-
-
-class HorizontalCalibration
+class CalibrationController
 {
 public:
 
-    HorizontalCalibration(int marbles_for_one_color, int samples_by_test, int ms_between_samples, int multisampling);
+    CalibrationController(int marbles_for_one_color, int samples_by_test, int ms_between_samples);
 
     void update();
     bool is_complete();
@@ -50,22 +27,29 @@ private:
     int _marbles_for_one_color;
     int _samples_by_test;
     int _ms_between_samples;
-    int _multisampling;
 
     IRSensBoards _ir_sens_boards;
     IRSensReader _board_reader;
-    PushButton _push_button;
+    PushButton &_push_button;
+    CalibrationDisplay _display;
+    ControlBoardsController _control_boards_controller;
 
     uint32_t *_values_on;
     uint32_t *_values_off;
 
-    horizontal_calibration_state_t _calibration_state;
+    calibration_state_t _calibration_state;
     uint16_t _measure_count;
     SensorStatistics **_statistics;
 
     void _idle_state_update();
     void _waiting_placement_state_update();
     void _read_state_update();
+    void _on_measure_complete();
+    void _sensor_statistics_to_thresholds(uint16_t (*out_thresholds)[NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1]);
+    void _save_calibration_data_to_nvs();
+    bool _ask_confirmation_to_save();
+    int _get_total_measure_count();
+    int _get_num_marble_types_groups();
     void _print_marble_placement();
     void _print_statistics();
     void _print_csv_data();

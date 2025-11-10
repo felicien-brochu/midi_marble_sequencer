@@ -26,7 +26,7 @@ size_t MidiMapper::eighth_note_marble_types_to_midi_notes(midi_note_t *midi_note
             marble_type_t marble_type = marble_types[track_index];
             if (marble_type != NO_MARBLE)
             {
-                midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_boom_box(track_index, marble_type);
+                midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_melodic(track_index, marble_type);
                 num_midi_notes++;
             }
         }

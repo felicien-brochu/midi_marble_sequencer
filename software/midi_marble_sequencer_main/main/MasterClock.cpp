@@ -55,7 +55,7 @@ MasterClock::MasterClock(Sequencer &sequencer) : _sequencer(sequencer), _control
 
     _start_timing_clock();
     _sequencer.set_sequencer_callback(sequencer_callback, this);
-    _control_boards_controller.start_control_boards_task();
+    _control_boards_controller.start_main_task();
 }
 
 void MasterClock::_start_timing_clock()
