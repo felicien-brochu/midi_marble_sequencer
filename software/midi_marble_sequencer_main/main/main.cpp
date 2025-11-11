@@ -143,6 +143,29 @@ void main_print_all_boards_first_values()
     }
 }
 
+void main_print_15_7_values()
+{
+    IRSensBoards ir_sens_boards;
+    IRSensReader board_reader(&ir_sens_boards);
+
+    uint32_t values_on[NUM_IR_SENS_BY_BOARD];
+    uint32_t values_off[NUM_IR_SENS_BY_BOARD];
+
+    // uint64_t read_count = 0;
+    while (1)
+    {
+        board_reader.read_board_values(values_off, values_on, 0, 4);
+
+        printf(">ref15: %ld\n", (int32_t)values_off[15] - (int32_t)values_on[15]);
+        printf(">7: %ld\n", (int32_t)values_off[7] - (int32_t)values_on[7]);
+        vTaskDelay(pdMS_TO_TICKS(500));
+        // if (read_count > 10) {
+        //     statistics(values_off, values_on, &ir_sens_board, 100);
+        //     distribution(values_off, values_on, 0, &ir_sens_board, 100);
+        // }
+    }
+}
+
 void main_test_led_snake()
 {
     BeatsLEDSnake led_snake;
@@ -220,6 +243,8 @@ extern "C" void app_main()
     // main_test_led_snake();
 
     // main_print_values();
+
+    // main_print_15_7_values();
 
     // main_print_all_boards_first_values();
 
