@@ -34,7 +34,7 @@ Sequencer::Sequencer()
 
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
-        _measures_states[i] = MEASURE_STATE_PLAY;
+        _rotary_buttons_states[i] = ROTARY_BUTTON_PLAY;
         _measure_lock_events[i] = NULL;
     }
 }
@@ -69,11 +69,25 @@ controls_pages_display_t Sequencer::get_controls_pages_display()
 
     for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
     {
-        bool is_edited_page = (i == _edited_page_index);
-        controls_pages_display.edited_pages_led_enabled[i] = is_edited_page;
-    }
+        led_display_state_t led_state = (i == _edited_page_index) ? LED_DISPLAY_STATE_ON : LED_DISPLAY_STATE_OFF;
+        controls_pages_display.edited_pages_led_states[i] = led_state;
+        
+        
+        led_state = LED_DISPLAY_STATE_OFF;
 
-    memcpy(controls_pages_display.played_pages_led_enabled, _played_pages, SEQUENCER_PAGES_NUM * sizeof(bool));
+        if (_played_pages[i])
+        {
+            if (i == _current_page_index && _is_playing)
+            {
+                led_state = LED_DISPLAY_STATE_BLINK;
+            }
+            else
+            {
+                led_state = LED_DISPLAY_STATE_ON;
+            }
+        }
+        controls_pages_display.played_pages_led_states[i] = led_state;
+    }
 
     return controls_pages_display;
 }
@@ -120,31 +134,20 @@ void Sequencer::next_page()
     uint8_t next_page_index = _current_page_index + 1;
     for (; next_page_index < SEQUENCER_PAGES_NUM; next_page_index++)
     {
-        if (_played_pages[next_page_index] && _pages[next_page_index].has_playable_eighth_notes())
+        if (_played_pages[next_page_index])
         {
             break;
         }
     }
 
+
     if (next_page_index >= SEQUENCER_PAGES_NUM)
     {
-        for (next_page_index = 0; next_page_index < _current_page_index; next_page_index++)
-        {
-            if (_played_pages[next_page_index] && _pages[next_page_index].has_playable_eighth_notes())
-            {
-                break;
-            }
-        }
-    }
-
-    if (next_page_index == _current_page_index)
-    {
-        next_page_index = _edited_page_index;
+        next_page_index = _get_first_played_page_index();
     }
     
     _current_page_index = next_page_index;
 }
-
 
 void Sequencer::set_eighth_note_marble_types(marble_type_t *marble_types)
 {
@@ -298,44 +301,39 @@ inline measure_state_t _rotary_button_state_to_measure_state(const rotary_button
 
 void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states)
 {
+    measure_state_t new_page_measures_states[SEQUENCER_MEASURES_NUM];
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
-        measure_state_t measure_state = _rotary_button_state_to_measure_state(rotary_buttons_states[i]);
-        if (measure_state != MEASURE_STATE_UNKNOWN)
+        if (rotary_buttons_states[i] != ROTARY_BUTTON_UNKNOWN)
         {
-            _measures_states[i] = measure_state;
+            _rotary_buttons_states[i] = rotary_buttons_states[i];
+            new_page_measures_states[i] = _rotary_button_state_to_measure_state(_rotary_buttons_states[i]);
         }
     }
     
     SequencerPage &edited_page = _pages[_edited_page_index];
 
-    measure_state_t *measures_states = edited_page.get_measures_states();
+    measure_state_t *page_measures_states = edited_page.get_measures_states();
     bool has_new_lock_state = false;
 
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
-        if (_measures_states[i] == MEASURE_STATE_LOCK)
+        if (_rotary_buttons_states[i] == ROTARY_BUTTON_LOCK)
         {
-            if (measures_states[i] != MEASURE_STATE_LOCK)
+            if (page_measures_states[i] != MEASURE_STATE_LOCK  && page_measures_states[i] != MEASURE_STATE_SOFT_LOCK)
             {
-                _measure_lock_events[i] = (measure_lock_event_t *) malloc(sizeof(measure_lock_event_t));
-                _measure_lock_events[i]->page_index = _edited_page_index;
-                _measure_lock_events[i]->measure_index = i;
-
+                _register_new_measure_lock_event(i);
                 has_new_lock_state = true;
             }
         }
         else
         {
-            if (_measure_lock_events[i] != NULL)
-            {
-                free(_measure_lock_events[i]);
-                _measure_lock_events[i] = NULL;
-            }
+            _delete_measure_lock_event(i);
         }
     }
 
-    edited_page.set_measures_states(_measures_states);
+    
+    edited_page.set_measures_states(new_page_measures_states);
     
     if (has_new_lock_state)
     {
@@ -343,20 +341,58 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
     }
 }
 
+void Sequencer::_delete_measure_lock_event(size_t i)
+{
+    if (_measure_lock_events[i] != NULL)
+    {
+        free(_measure_lock_events[i]);
+        _measure_lock_events[i] = NULL;
+    }
+}
+
+void Sequencer::_register_new_measure_lock_event(size_t i)
+{
+    _delete_measure_lock_event(i);
+    _measure_lock_events[i] = (measure_lock_event_t *)malloc(sizeof(measure_lock_event_t));
+    _measure_lock_events[i]->page_index = _edited_page_index;
+    _measure_lock_events[i]->measure_index = i;
+}
 
 void Sequencer::_set_played_pages_from_buttons(const uint16_t push_buttons_events)
 {
     uint16_t events = push_buttons_events;
 
-    for (size_t i = SEQUENCER_TRACKS_NUM; i > 0; i--)
+    bool played_pages_temp[SEQUENCER_PAGES_NUM];
+    memcpy(played_pages_temp, _played_pages, SEQUENCER_PAGES_NUM * sizeof(bool));
+
+    uint8_t num_pages_played = 0;
+
+    for (size_t i = SEQUENCER_PAGES_NUM; i > 0; i--)
     {
         // has odd number of clicks pending
         if (events & 0x2)
         {
             // ESP_LOGI(TAG, "Played page btn clck [%d]", i - 1);
-            _played_pages[i - 1] = !_played_pages[i - 1];
+            played_pages_temp[i - 1] = !played_pages_temp[i - 1];
         }
         events = events >> 2;
+
+        if (played_pages_temp[i - 1])
+        {
+            num_pages_played++;
+        }
+    }
+
+    if (num_pages_played == 0)
+    {
+        for (size_t i = SEQUENCER_PAGES_NUM; i > 0; i--)
+        {
+            _played_pages[i] = (i == _current_page_index);
+        }
+    }
+    else
+    {
+        memcpy(_played_pages, played_pages_temp, SEQUENCER_PAGES_NUM * sizeof(bool));
     }
 }
 
@@ -364,7 +400,7 @@ void Sequencer::_set_edited_pages_from_buttons(const uint16_t push_buttons_event
 {
     uint16_t events = push_buttons_events;
 
-    for (size_t i = SEQUENCER_TRACKS_NUM; i > 0; i--)
+    for (size_t i = SEQUENCER_PAGES_NUM; i > 0; i--)
     {
         // has odd number of clicks pending
         if (events & 0x2)

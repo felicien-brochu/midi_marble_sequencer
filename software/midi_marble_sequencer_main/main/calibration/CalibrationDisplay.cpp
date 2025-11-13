@@ -68,6 +68,7 @@ void CalibrationDisplay::set_controls_pages_display(const controls_pages_display
 
 void CalibrationDisplay::set_led_enabled(uint8_t led_group_index, uint8_t led_index, bool enabled)
 {
+	led_display_state_t led_state = enabled ? LED_DISPLAY_STATE_ON : LED_DISPLAY_STATE_OFF;
     switch (led_group_index)
     {
         case 0:
@@ -76,13 +77,13 @@ void CalibrationDisplay::set_led_enabled(uint8_t led_group_index, uint8_t led_in
             }
             break;
         case 1:
-            if (led_index < sizeof(_controls_pages_display.edited_pages_led_enabled)) {
-                _controls_pages_display.edited_pages_led_enabled[led_index] = enabled;
+            if (led_index < sizeof(_controls_pages_display.edited_pages_led_states)) {
+                _controls_pages_display.edited_pages_led_states[led_index] = led_state;
             }
             break;
         case 2:
-            if (led_index < sizeof(_controls_pages_display.played_pages_led_enabled)) {
-                _controls_pages_display.played_pages_led_enabled[led_index] = enabled;
+            if (led_index < sizeof(_controls_pages_display.played_pages_led_states)) {
+                _controls_pages_display.played_pages_led_states[led_index] = led_state;
             }
             break;
         default:
@@ -93,24 +94,25 @@ void CalibrationDisplay::set_led_enabled(uint8_t led_group_index, uint8_t led_in
 
 void CalibrationDisplay::set_led_group_enabled(uint8_t led_group_index, bool enabled)
 {
+	led_display_state_t led_state = enabled ? LED_DISPLAY_STATE_ON : LED_DISPLAY_STATE_OFF;
     switch (led_group_index)
     {
         case 0:
-            for (size_t i = 0; i < sizeof(_controls_main_display.tracks_led_enabled); i++)
+            for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
             {
                 _controls_main_display.tracks_led_enabled[i] = enabled;
             }
             break;
         case 1:
-            for (size_t i = 0; i < sizeof(_controls_pages_display.edited_pages_led_enabled); i++)
+            for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
             {
-                _controls_pages_display.edited_pages_led_enabled[i] = enabled;
+                _controls_pages_display.edited_pages_led_states[i] = led_state;
             }
             break;
         case 2:
-            for (size_t i = 0; i < sizeof(_controls_pages_display.played_pages_led_enabled); i++)
+            for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
             {
-                _controls_pages_display.played_pages_led_enabled[i] = enabled;
+                _controls_pages_display.played_pages_led_states[i] = led_state;
             }
             break;
         default:
@@ -130,7 +132,8 @@ void CalibrationDisplay::show_completion_rate(float completion_rate)
     
     for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
     {
-        _controls_pages_display.played_pages_led_enabled[i] = (i < num_leds_to_light);
+		led_display_state_t led_state = (i < num_leds_to_light) ? LED_DISPLAY_STATE_ON : LED_DISPLAY_STATE_OFF;
+        _controls_pages_display.played_pages_led_states[i] = led_state;
     }
 }
 

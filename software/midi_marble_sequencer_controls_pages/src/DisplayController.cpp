@@ -9,27 +9,6 @@ DisplayController::DisplayController() : _led_array(16, LED_ARRAY_POWER_GPIO, LE
 
 void DisplayController::update(controls_pages_display_t controls_pages_display)
 {
-    for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
-    {
-        if (controls_pages_display.played_pages_led_enabled[i])
-        {
-            _played_led_row.enable_led(i);
-        }
-        else 
-        {
-            _played_led_row.disable_led(i);
-        }
-    }
-
-    for (size_t i = 0; i < SEQUENCER_PAGES_NUM; i++)
-    {
-        if (controls_pages_display.edited_pages_led_enabled[i])
-        {
-            _edited_led_row.enable_led(i);
-        }
-        else 
-        {
-            _edited_led_row.disable_led(i);
-        }
-    }
+    _played_led_row.set_led_states(controls_pages_display.played_pages_led_states);
+    _edited_led_row.set_led_states(controls_pages_display.edited_pages_led_states);
 }

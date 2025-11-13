@@ -1,19 +1,22 @@
 #pragma once
 
-#include <LEDArray_arduino.h>
+#include "BlinkClock.h"
 
-class LEDRow
+#include <LEDArray_arduino.h>
+#include <controls_pages_common.h>
+
+class LEDRow : public IBlinkClockListener
 {
 public:
     LEDRow(LEDArray &led_array, uint8_t num_leds, const uint8_t *led_indexes);
 
-    void enable_led(uint8_t index);
-    void disable_led(uint8_t index);
-    void enable_all_leds();
-    void disable_all_leds();
+    void set_led_states(led_display_state_t *led_states);
+    void on_blink_clock_tick(bool blink_is_on);
 
 private:
     LEDArray &_led_array;
     uint8_t _num_leds;
     const uint8_t *_led_indexes;
+
+    led_display_state_t *_led_states;
 };

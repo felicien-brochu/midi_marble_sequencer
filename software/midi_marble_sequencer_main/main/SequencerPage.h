@@ -11,6 +11,7 @@ typedef enum {
     MEASURE_STATE_SKIP,
     MEASURE_STATE_PLAY,
     MEASURE_STATE_LOCK,
+    MEASURE_STATE_SOFT_LOCK,
     MEASURE_STATE_MAX
 } measure_state_t;
 

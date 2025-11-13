@@ -6,6 +6,8 @@
 #include "SequencerPage.h"
 #include "IControlBoardsListener.h"
 
+#include <stddef.h>
+
 
 #define SEQUENCER_BPM_MIN 20
 #define SEQUENCER_BPM_MAX 600
@@ -67,7 +69,7 @@ private:
     float _bpm_samples[SEQUENCER_BPM_SAMPLE_COUNT];
     float _bpm;
     bool _tracks_enabled[SEQUENCER_TRACKS_NUM];
-    measure_state_t _measures_states[SEQUENCER_MEASURES_NUM];
+    rotary_button_state_t _rotary_buttons_states[SEQUENCER_MEASURES_NUM];
     measure_lock_event_t *_measure_lock_events[SEQUENCER_MEASURES_NUM];
 
     
@@ -79,6 +81,10 @@ private:
     void _set_bpm_from_potentiometer(const float potentiometer_value);
     void _set_tracks_enabled_from_push_buttons(const uint16_t push_buttons_events);
     void _set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states);
+
+    void _delete_measure_lock_event(size_t i);
+
+    void _register_new_measure_lock_event(size_t i);
 
     void _set_played_pages_from_buttons(const uint16_t push_buttons_events);
     void _set_edited_pages_from_buttons(const uint16_t push_buttons_events);
