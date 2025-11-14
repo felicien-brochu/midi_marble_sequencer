@@ -71,20 +71,18 @@ controls_pages_display_t Sequencer::get_controls_pages_display()
     {
         led_display_state_t led_state = (i == _edited_page_index) ? LED_DISPLAY_STATE_ON : LED_DISPLAY_STATE_OFF;
         controls_pages_display.edited_pages_led_states[i] = led_state;
-        
-        
-        led_state = LED_DISPLAY_STATE_OFF;
 
-        if (_played_pages[i] || (i == _current_page_index && _is_playing))
+        if (i == _current_page_index && _is_playing)
         {
-            if (i == _current_page_index && _is_playing)
-            {
-                led_state = LED_DISPLAY_STATE_BLINK;
-            }
-            else
-            {
-                led_state = LED_DISPLAY_STATE_ON;
-            }
+            led_state = LED_DISPLAY_STATE_BLINK;
+        }
+        else if (_played_pages[i])
+        {
+            led_state = LED_DISPLAY_STATE_ON;
+        }
+        else
+        {
+            led_state = LED_DISPLAY_STATE_OFF;
         }
         controls_pages_display.played_pages_led_states[i] = led_state;
     }
