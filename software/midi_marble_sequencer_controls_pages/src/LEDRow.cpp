@@ -25,6 +25,7 @@ void LEDRow::set_led_states(led_display_state_t *led_states)
         else if (led_states[i] == LED_DISPLAY_STATE_BLINK && _led_states[i] != LED_DISPLAY_STATE_BLINK)
         {
             _led_array.disable_led(_led_indexes[i]);
+            BlinkClock::instance().restart_blink();
         }
     }
 

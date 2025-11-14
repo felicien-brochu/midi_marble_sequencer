@@ -31,6 +31,8 @@ public:
 
     void add_listener(IBlinkClockListener *listener);
     void main_task();
+
+    void restart_blink();
     
     xSemaphoreHandle timer_semaphore;
     

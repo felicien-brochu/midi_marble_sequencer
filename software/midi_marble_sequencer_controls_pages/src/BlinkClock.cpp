@@ -63,6 +63,16 @@ void BlinkClock::main_task()
     }
 }
 
+void BlinkClock::restart_blink()
+{
+    _is_on = false;
+
+    uint32_t next_tick = _off_time;
+    timerRestart(_blink_timer);
+    timerAlarmWrite(_blink_timer, next_tick, false);
+    timerAlarmEnable(_blink_timer);
+}
+
 void BlinkClock::_handle_tick()
 {
     _is_on = !_is_on;
