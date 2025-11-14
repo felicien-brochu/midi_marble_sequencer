@@ -75,7 +75,7 @@ controls_pages_display_t Sequencer::get_controls_pages_display()
         
         led_state = LED_DISPLAY_STATE_OFF;
 
-        if (_played_pages[i])
+        if (_played_pages[i] || (i == _current_page_index && _is_playing))
         {
             if (i == _current_page_index && _is_playing)
             {
