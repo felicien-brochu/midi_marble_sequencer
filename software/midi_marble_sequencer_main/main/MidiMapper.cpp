@@ -79,7 +79,7 @@ size_t MidiMapper::eighth_note_marble_types_to_midi_notes(midi_note_t *midi_note
             marble_type_t marble_type = marble_types[track_index];
             if (marble_type != NO_MARBLE)
             {
-                midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_live_1(track_index, marble_type);
+                midi_notes[num_midi_notes] = _eighth_note_marble_type_to_midi_note_default(track_index, marble_type);
                 num_midi_notes++;
             }
         }
@@ -89,9 +89,21 @@ size_t MidiMapper::eighth_note_marble_types_to_midi_notes(midi_note_t *midi_note
 }
 
 
+midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_default(uint8_t track_index, marble_type_t marble_type)
+{
+    static const uint8_t notes[] = {60, 63, 65, 67, 70};
+    midi_note_t midi_note = {
+        .note = notes[marble_type - 1],
+        .channel = track_index,
+    };
+
+    return midi_note;
+}
+
+
 midi_note_t _live_1_drum(marble_type_t marble_type)
 {
-    uint8_t notes[] = {36, 38, 42, 39, 53};
+    static const uint8_t notes[] = {36, 38, 42, 39, 53};
     uint8_t marble_type_index = (marble_type - 1);
 
     midi_note_t midi_note = {
@@ -168,7 +180,7 @@ midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_melodic(uint8_t tr
 
 midi_note_t MidiMapper::_eighth_note_marble_type_to_midi_note_boom_box(uint8_t track_index, marble_type_t marble_type)
 {
-    uint8_t notes[] = {53, 60, 67};
+    static const uint8_t notes[] = {53, 60, 67};
     uint8_t marble_type_index = (marble_type - 1);
 
     midi_note_t midi_note = {
