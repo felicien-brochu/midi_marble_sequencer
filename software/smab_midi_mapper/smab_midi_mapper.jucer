@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT name="smab_midi_mapper" companyName="Felicien Brochu" version="1.0.0"
+              userNotes="Maps SMAB MIDI input to different scales and channels."
+              companyWebsite="github.com/felicien-brochu" projectType="audioplug"
+              pluginAUIsSandboxSafe="1" pluginManufacturer="Felicien Brochu"
+              pluginFormats="buildVST3,buildAU,buildStandalone" pluginCharacteristicsValue="pluginWantsMidiIn,pluginProducesMidiOut,pluginIsMidiEffectPlugin"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="1" id="DV0TEw"
+              companyEmail="felicien.brochu@gmail.com" projectLineFeed="&#10;"
+              jucerFormatVersion="1">
+  <MAINGROUP id="Dgmoqk" name="smab_midi_mapper">
+    <GROUP id="{3F435326-E880-E620-E333-B5A516B25FEB}" name="Resource">
+      <FILE id="P1PtH8" name="Icon_small.png" compile="0" resource="1" file="Resource/Icon_small.png"/>
+      <FILE id="Tf19HA" name="Icon_big.png" compile="0" resource="1" file="Resource/Icon_big.png"/>
+    </GROUP>
+    <GROUP id="{9E4BD604-9FE4-B31D-15DD-37A4C34D4880}" name="Source">
+      <FILE id="gr3qh8" name="Editor.cpp" compile="1" resource="0" file="Source/Editor.cpp"/>
+      <FILE id="y1AUtO" name="Editor.h" compile="0" resource="0" file="Source/Editor.h"/>
+      <FILE id="Ki9FG8" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="NtOpgB" name="MidiMapperPlugin.cpp" compile="1" resource="0"
+            file="Source/MidiMapperPlugin.cpp"/>
+      <FILE id="xEZx3A" name="MidiMapperPlugin.h" compile="0" resource="0"
+            file="Source/MidiMapperPlugin.h"/>
+      <FILE id="HDYdQ8" name="MidiMapping.cpp" compile="1" resource="0" file="Source/MidiMapping.cpp"/>
+      <FILE id="YwBpXD" name="MidiMapping.h" compile="0" resource="0" file="Source/MidiMapping.h"/>
+      <FILE id="Pik9B1" name="paths.h" compile="0" resource="0" file="Source/paths.h"/>
+      <FILE id="KrXIRG" name="PresetDisplay.cpp" compile="1" resource="0"
+            file="Source/PresetDisplay.cpp"/>
+      <FILE id="V8q6XN" name="PresetDisplay.h" compile="0" resource="0" file="Source/PresetDisplay.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors_headless" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" smallIcon="P1PtH8" bigIcon="Tf19HA">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="smab_midi_mapper"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="smab_midi_mapper"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+        <MODULEPATH id="juce_audio_processors_headless" path=""/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2026 targetFolder="Builds/VisualStudio2026" extraCompilerFlags="/bigobj"
+            bigIcon="Tf19HA" smallIcon="P1PtH8">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="smab_midi_mapper"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="smab_midi_mapper"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+        <MODULEPATH id="juce_audio_processors_headless" path=""/>
+      </MODULEPATHS>
+    </VS2026>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" smallIcon="P1PtH8" bigIcon="Tf19HA">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="smab_midi_mapper"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="smab_midi_mapper"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_plugin_client" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+        <MODULEPATH id="juce_audio_processors_headless" path=""/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+</JUCERPROJECT>
