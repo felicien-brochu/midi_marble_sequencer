@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Marble Sequencer - Calibration Procedure</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --bg-color: #ecf0f1;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --code-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary-color);
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+        }
+
+        p, li {
+            margin-bottom: 0.8rem;
+        }
+
+        .card {
+            background: var(--bg-color);
+            border-left: 4px solid var(--secondary-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .card.warning {
+            border-left-color: var(--warning-color);
+            background: #fff3cd;
+        }
+
+        .card.success {
+            border-left-color: var(--success-color);
+            background: #d4edda;
+        }
+
+        .card.info {
+            border-left-color: var(--secondary-color);
+            background: #d1ecf1;
+        }
+
+        ol, ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ol li, ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
+
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: var(--text-color);
+        }
+
+        .marble-colors {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            gap: 1rem;
+        }
+
+        .marble {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 100px;
+        }
+
+        .marble-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .brown { background: linear-gradient(135deg, #8B4513, #A0522D); }
+        .orange { background: linear-gradient(135deg, #FF8C00, #FFA500); }
+        .green { background: linear-gradient(135deg, #228B22, #32CD32); }
+        .blue { background: linear-gradient(135deg, #4169E1, #6495ED); }
+        .white { background: linear-gradient(135deg, #F8F8FF, #FFFFFF); border: 2px solid #ddd; }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        strong {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .file-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-link {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--secondary-color);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .file-link:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-box {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        /* Track visualization styles */
+        .track-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .led-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .led-lit {
+            background: linear-gradient(135deg, #DC143C, #FF0000);
+            box-shadow: 0 0 4px rgba(220, 20, 60, 0.6);
+        }
+
+        .led-dimmed {
+            background: #8B4545;
+            box-shadow: none;
+            opacity: 0.4;
+        }
+
+        .track-label {
+            min-width: 70px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .marble-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 8px;
+            border-radius: 6px;
+            overflow-x: hidden;
+        }
+
+        .marble-container.filled {
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+
+        .marble-container.empty {
+            background: #fafafa;
+            border: 1px dashed #ccc;
+        }
+
+        .marble-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .marble-circle.brown {
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+        }
+
+        .marble-circle.orange {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+        }
+
+        .marble-circle.green {
+            background: linear-gradient(135deg, #228B22, #32CD32);
+        }
+
+        .marble-circle.blue {
+            background: linear-gradient(135deg, #4169E1, #6495ED);
+        }
+
+        .marble-circle.white {
+            background: linear-gradient(135deg, #F8F8FF, #FFFFFF);
+            border: 2px solid #ddd;
+        }
+
+        .marble-circle.empty-slot {
+            background: transparent;
+            border: 2px dashed #ccc;
+            box-shadow: none;
+        }
+
+        .marble-separator {
+            color: #999;
+            margin: 0 4px;
+        }
+
+        .track-count {
+            min-width: 130px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .marble-colors {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calibration Procedure</h1>
+            <p>This guide explains how to calibrate the IR sensors for the MIDI Marble Sequencer.</p>
+        </header>
+
+        <div class="content">
+            <div class="card info">
+                <h2>Overview</h2>
+                <p>The calibration process measures the IR sensor response for different marble colors to establish accurate detection thresholds. This ensures reliable marble detection during operation.</p>
+            </div>
+
+            <h2>Starting Calibration Mode</h2>
+            <ol>
+                <li><strong>Power off</strong> the device</li>
+                <li><strong>Power on</strong> the device while <strong>holding the calibration button</strong> (the calibration button is at the back of the sequencer)</li>
+                <li><strong>Release</strong> the button once the device starts</li>
+            </ol>
+            <p>The device will enter calibration mode instead of normal operation.</p>
+
+            <h2>Calibration Process</h2>
+
+            <h3>What You Need</h3>
+            <div class="card">
+                <p><strong>32 marbles of each color</strong> (160 marbles total):</p>
+                <ul>
+                    <li>32 Brown marbles</li>
+                    <li>32 Orange marbles</li>
+                    <li>32 Green marbles</li>
+                    <li>32 Blue marbles</li>
+                    <li>32 White marbles</li>
+                </ul>
+                
+                <div class="marble-colors">
+                    <div class="marble">
+                        <div class="marble-icon brown"></div>
+                        <strong>Brown</strong>
+                    </div>
+                    <div class="marble">
+                        <div class="marble-icon orange"></div>
+                        <strong>Orange</strong>
+                    </div>
+                    <div class="marble">
+                        <div class="marble-icon green"></div>
+                        <strong>Green</strong>
+                    </div>
+                    <div class="marble">
+                        <div class="marble-icon blue"></div>
+                        <strong>Blue</strong>
+                    </div>
+                    <div class="marble">
+                        <div class="marble-icon white"></div>
+                        <strong>White</strong>
+                    </div>
+                </div>
+            </div>
+
+            <h3>First Cycle Setup Example</h3>
+            <p>Here's what the first calibration cycle looks like on your device:</p>
+            
+            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 1rem; font-weight: bold; color: #666;">← Eighth Note Positions 0→31 (Left to Right) →</div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Track 0 - Empty -->
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 0</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                    
+                    <!-- Track 1 - Brown -->
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 1</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                        </div>
+                        <div class="track-count">32 Brown</div>
+                    </div>
+                    
+                    <!-- Track 2 - Orange -->
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 2</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                        </div>
+                        <div class="track-count">32 Orange</div>
+                    </div>
+                    
+                    <!-- Track 3 - Green -->
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 3</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                        </div>
+                        <div class="track-count">32 Green</div>
+                    </div>
+                    
+                    <!-- Track 4 - Blue -->
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 4</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                        </div>
+                        <div class="track-count">32 Blue</div>
+                    </div>
+                    
+                    <!-- Track 5 - White -->
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 5</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                        </div>
+                        <div class="track-count">32 White</div>
+                    </div>
+                    
+                    <!-- Track 6 - Empty -->
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 6</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                    
+                    <!-- Track 7 - Empty -->
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 7</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Step-by-Step Instructions</h3>
+            <p>The calibration process runs 64 measurement cycles. For each cycle, place marbles according to the LEDs (or console table), start the measurement, wait for completion, then rearrange for the next cycle.</p>
+
+            <div class="card">
+                <h4><span class="step-number">1</span>Check the Current Cycle Placement</h4>
+                <ul>
+                    <li>Place marbles on lit tracks (0-7); leave unlit tracks empty</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Optional - Console Output:</strong> If you have console access, it displays the exact color per track:</p>
+                <pre><code>|    0   |    1   |    2   |    3   |    4   |    5   |    6   |    7   |
+| NONE   | Brown  | Orange | Green  | Blue   | White  | NONE   | NONE   |
+Measure 1/64</code></pre>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">2</span>Place the Marbles</h4>
+                <ul>
+                    <li>For each track with a lit LED, place one marble on every sensor</li>
+                    <li><strong>Color assignment pattern:</strong> colors rotate across tracks (Brown → Orange → Green → Blue → White); 3 tracks are always empty</li>
+                    <li>On the first cycle: Track 1 gets Brown, Track 2 gets Orange, Track 3 gets Green, Track 4 gets Blue, Track 5 gets White (Tracks 0, 6, 7 are empty)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">3</span>Confirm Placement</h4>
+                <ul>
+                    <li><strong>Press the calibration button once</strong> when marbles are correctly placed</li>
+                    <li>Wait for the measurement to complete - the control board display will update to show progress</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">4</span>Repeat for All Cycles</h4>
+                <ul>
+                    <li>After each measurement completes, the firmware advances to the next cycle and updates the LEDs for the next arrangement. If the LED pattern did not change, rotate the marbles on the same track (see: Rotating Marbles Within the Same Track). If the LED pattern changed, Rearrange marbles to match the new LED pattern (see: Shifting Marbles Between Tracks)</li>
+                </ul>
+            </div>
+
+            <h3>Rotating Marbles Within the Same Track</h3>
+            <p>Instead of removing marbles between cycles when the LED pattern is unchanged, rotate them one position left so each sensor sees a different marble. The leftmost marble (sensor <strong>0</strong>) wraps around to sensor <strong>31</strong>.</p>
+
+            <div class="card" style="background: #f8f9fa; padding: 1.5rem;">
+                <h4 style="margin-bottom:0.5rem;">Rotation schematic (one-position left shift)</h4>
+                <p style="margin-bottom:0.75rem;">Visual mapping of marble movement: each marble moves one sensor to the left; the marble at sensor <strong>0</strong> wraps to sensor <strong>31</strong>.</p>
+                <!-- Labeled mapping SVG: before (top) -> after (bottom) with arrows -->
+                <div style="overflow:hidden; padding:0.6rem 0.8rem;">
+                    <svg width="100%" height="260" viewBox="0 0 760 260" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rotation mapping diagram">
+                        <defs>
+                            <filter id="drop" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
+                            </filter>
+                            <!-- solid marble color used instead of gradient -->
+                            <marker id="arrow" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0 0 L6 3 L0 6 z" fill="#3498db" stroke="#2c3e50" stroke-width="0.25" />
+                            </marker>
+                            <style>
+                                .slot { fill:#eee; stroke:#ccc }
+                                .marb { fill:#FF8C00; stroke:#C65A00 }
+                                .lbl { font-size:13px; fill:#222; font-weight:700 }
+                                .sub { font-size:12px; fill:#222 }
+                                .arrow { stroke:#3498db; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; }
+                                .ellipsis { font-size:24px; fill:#666; font-weight:700 }
+                            </style>
+                        </defs>
+
+                        <!-- Before row label -->
+                        <text x="20" y="24" class="lbl">Before (sensor positions)</text>
+                        <!-- After row label moved under the second row of marbles -->
+                        <text x="20" y="230" class="lbl">After (sensor positions)</text>
+
+                        <!-- Slots and marbles: positions 0..31 (compact layout) -->
+                        <!-- layout: x = 60 + i*33 -->
+                        <g id="before" transform="translate(0,0)">
+                            <g id="before-pos">
+                                <!-- position numbers (every 1, small) -->
+                                <!-- loop generated manually for 0..31 -->
+                                <!-- show only 0..7 and 24..31 indices; middle positions symbolized by ellipsis -->
+                                <text x="60" y="40" class="sub" text-anchor="middle">0</text>
+                                <text x="93" y="40" class="sub" text-anchor="middle">1</text>
+                                <text x="126" y="40" class="sub" text-anchor="middle">2</text>
+                                <text x="159" y="40" class="sub" text-anchor="middle">3</text>
+                                <text x="192" y="40" class="sub" text-anchor="middle">4</text>
+                                <text x="225" y="40" class="sub" text-anchor="middle">5</text>
+                                <text x="258" y="40" class="sub" text-anchor="middle">6</text>
+                                <text x="291" y="40" class="sub" text-anchor="middle">7</text>
+                                <text x="328" y="40" class="ellipsis" text-anchor="middle" textLength="40">…</text>
+                                <text x="364" y="40" class="sub" text-anchor="middle">24</text>
+                                <text x="397" y="40" class="sub" text-anchor="middle">25</text>
+                                <text x="430" y="40" class="sub" text-anchor="middle">26</text>
+                                <text x="463" y="40" class="sub" text-anchor="middle">27</text>
+                                <text x="496" y="40" class="sub" text-anchor="middle">28</text>
+                                <text x="529" y="40" class="sub" text-anchor="middle">29</text>
+                                <text x="562" y="40" class="sub" text-anchor="middle">30</text>
+                                <text x="595" y="40" class="sub" text-anchor="middle">31</text>
+                            </g>
+                            <g id="before-marbs" transform="translate(0,52)">
+                                <!-- marbles as circles, labels below to avoid overlap -->
+                                <!-- positions cx = 60 + i*33 -->
+                                <g>
+                                    <!-- show marbles 0..7 -->
+                                    <circle class="marb" cx="60" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="93" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="126" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="159" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="192" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="225" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="258" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="291" cy="0" r="10" filter="url(#drop)"/>
+                                    <!-- ellipsis for positions 8..23 (two-marble width) -->
+                                    <text x="328" y="4" class="ellipsis" text-anchor="middle" textLength="40">…</text>
+                                    <!-- show marbles 24..31 (placed close after pos7 with 2-marble gap) -->
+                                    <circle class="marb" cx="364" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="397" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="430" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="463" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="496" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="529" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="562" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="595" cy="0" r="10" filter="url(#drop)"/>
+                                </g>
+                            </g>
+                        </g>
+
+                        <!-- After row marbles -->
+                        <g id="after" transform="translate(0,160)">
+                            <g id="after-pos">
+                                <!-- position numbers 0..31 (same x positions as before) -->
+                                <!-- show only 0..7 and 24..31 indices for after row as well -->
+                                <text x="60" y="30" class="sub" text-anchor="middle">0</text>
+                                <text x="93" y="30" class="sub" text-anchor="middle">1</text>
+                                <text x="126" y="30" class="sub" text-anchor="middle">2</text>
+                                <text x="159" y="30" class="sub" text-anchor="middle">3</text>
+                                <text x="192" y="30" class="sub" text-anchor="middle">4</text>
+                                <text x="225" y="30" class="sub" text-anchor="middle">5</text>
+                                <text x="258" y="30" class="sub" text-anchor="middle">6</text>
+                                <text x="291" y="30" class="sub" text-anchor="middle">7</text>
+                                <text x="328" y="30" class="ellipsis" text-anchor="middle" textLength="40">…</text>
+                                <text x="364" y="30" class="sub" text-anchor="middle">24</text>
+                                <text x="397" y="30" class="sub" text-anchor="middle">25</text>
+                                <text x="430" y="30" class="sub" text-anchor="middle">26</text>
+                                <text x="463" y="30" class="sub" text-anchor="middle">27</text>
+                                <text x="496" y="30" class="sub" text-anchor="middle">28</text>
+                                <text x="529" y="30" class="sub" text-anchor="middle">29</text>
+                                <text x="562" y="30" class="sub" text-anchor="middle">30</text>
+                                <text x="595" y="30" class="sub" text-anchor="middle">31</text>
+                            </g>
+                            <g id="after-marbs" transform="translate(0,42)">
+                                <!-- show marbles 0..7 after rotation (these display the marble that was previously at index+1) -->
+                                <circle class="marb" cx="60" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="93" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="126" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="159" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="192" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="225" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="258" cy="0" r="10" filter="url(#drop)"/>
+                                <circle class="marb" cx="291" cy="0" r="10" filter="url(#drop)"/>
+                                <!-- ellipsis in after row (two-marble width) -->
+                                <text x="328" y="4" class="ellipsis" text-anchor="middle" textLength="40">…</text>
+                                <!-- show marbles 24..31 after rotation -->
+                                    <circle class="marb" cx="364" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="397" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="430" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="463" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="496" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="529" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="562" cy="0" r="10" filter="url(#drop)"/>
+                                    <circle class="marb" cx="595" cy="0" r="10" filter="url(#drop)"/>
+                            </g>
+                        </g>
+
+                        <!-- arrows: from each before position to its after position (left shift)
+                             mapping: before i -> after (i-1 mod 32) -->
+                        <g fill="none">
+                            <!-- arrows only for visible marbles (0..7 and 24..31) -->
+                            <!-- i=0 -> j=31 (curve) - start 5px below top marbles and end 15px above second-row labels -->
+                            <path class="arrow" d="M60,67 C60,140 595,140 595,175" marker-end="url(#arrow)" />
+                            <!-- 1->0 .. 7->6 (curved) -->
+                            <path class="arrow" d="M93,67 C93,140 60,140 60,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M126,67 C126,140 93,140 93,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M159,67 C159,140 126,140 126,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M192,67 C192,140 159,140 159,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M225,67 C225,140 192,140 192,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M258,67 C258,140 225,140 225,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M291,67 C291,140 258,140 258,175" marker-end="url(#arrow)" />
+                            <!-- 24->23 .. 31->30 (curved, compacted positions) -->
+                            <path class="arrow" d="M364,67 C364,140 331,140 331,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M397,67 C397,140 364,140 364,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M430,67 C430,140 397,140 397,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M463,67 C463,140 430,140 430,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M496,67 C496,140 463,140 463,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M529,67 C529,140 496,140 496,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M562,67 C562,140 529,140 529,175" marker-end="url(#arrow)" />
+                            <path class="arrow" d="M595,67 C595,140 562,140 562,175" marker-end="url(#arrow)" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <p style="margin-top: 1.5rem;"><strong>Why rotate?</strong> This ensures different individual marbles are tested at each sensor position, accounting for physical variations between marbles of the same color.</p>
+
+            <h3>Shifting Marbles Between Tracks</h3>
+            <p>When the color pattern rotates to the next cycle, the entire pattern shifts up one track.</p>
+            
+            <div class="card" style="background: #f8f9fa; padding: 1.5rem;">
+                <h4 style="margin-bottom: 1rem;">Cycle 1 - Initial Setup:</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 0</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 1</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                        </div>
+                        <div class="track-count">Brown</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 2</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                        </div>
+                        <div class="track-count">Orange</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 3</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                        </div>
+                        <div class="track-count">Green</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 4</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                        </div>
+                        <div class="track-count">Blue</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 5</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                        </div>
+                        <div class="track-count">White</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 6</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 7</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; color: #666; margin: 1.5rem 0; font-weight: bold;">
+                    ↓ Everything shifts UP one track (Track 1 → Track 0) ↓
+                </div>
+
+                <h4 style="margin-bottom: 1rem;">Cycle 2 - After Shifting:</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 0</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle brown"></div>
+                            <div class="marble-circle brown"></div>
+                        </div>
+                        <div class="track-count">Brown (was Track 1)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 1</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle orange"></div>
+                            <div class="marble-circle orange"></div>
+                        </div>
+                        <div class="track-count">Orange (was Track 2)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 2</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle green"></div>
+                            <div class="marble-circle green"></div>
+                        </div>
+                        <div class="track-count">Green (was Track 3)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 3</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle blue"></div>
+                            <div class="marble-circle blue"></div>
+                        </div>
+                        <div class="track-count">Blue (was Track 4)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-lit"></div>
+                        <div class="track-label">Track 4</div>
+                        <div class="marble-container filled">
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle white"></div>
+                            <div class="marble-circle white"></div>
+                        </div>
+                        <div class="track-count">White (was Track 5)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 5</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty (was Track 6)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 6</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty (was Track 7)</div>
+                    </div>
+                    <div class="track-row">
+                        <div class="led-indicator led-dimmed"></div>
+                        <div class="track-label">Track 7</div>
+                        <div class="marble-container empty">
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                            <span class="marble-separator">...</span>
+                            <div class="marble-circle empty-slot"></div>
+                            <div class="marble-circle empty-slot"></div>
+                        </div>
+                        <div class="track-count">Empty (was Track 0)</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Saving Calibration Data</h2>
+            <p>After all measurements are complete:</p>
+
+            <div class="card warning">
+                <h4><span class="step-number">1</span>Confirm Save</h4>
+                <p>The console will prompt: <code>Save calibration data? Press button for 5 seconds to confirm.</code></p>
+                <ul>
+                    <li><strong>Press and hold</strong> the calibration button for <strong>5 seconds</strong> to save</li>
+                    <li>Release early to cancel without saving</li>
+                </ul>
+            </div>
+
+            <div class="card success">
+                <h4><span class="step-number">2</span>Completion</h4>
+                <ul>
+                    <li>If saved successfully, the console will prompt: <code>Calibration data saved successfuly.</code></li>
+                    <li>The completion rate display will show 100%</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
