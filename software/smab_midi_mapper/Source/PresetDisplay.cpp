@@ -378,7 +378,8 @@ void PresetDisplay::paint (juce::Graphics& g)
                 const int y1 = r.getY() + gStart * rowH + 1;
                 const int y2 = r.getY() + (gEnd + 1) * rowH - 1;
                 const int x1 = r.getX() + 24 - 6;
-                const int w = availableW + 12;
+                // reduce width to stay within bounds: subtract border thickness and margin
+                const int w = availableW + 12 - 8;
 
                 const float normChan = juce::jlimit (0.0f, 1.0f, primaryOut[gStart] / 7.0f);
                 const float greyLevel = 0.2f + normChan * 0.75f;
@@ -389,7 +390,7 @@ void PresetDisplay::paint (juce::Graphics& g)
 
                 const juce::Colour borderColour = juce::Colours::white.withAlpha (0.5f);
                 g.setColour (borderColour);
-                g.drawRoundedRectangle (x1, y1, w, (y2 - y1 + 1), 4.0f, 2.0f);
+                g.drawRoundedRectangle ((float)x1, (float)y1, (float)w, (float)(y2 - y1 + 1), 4.0f, 2.0f);
             }
 
             groupStart = ch;
@@ -467,7 +468,7 @@ void PresetDisplay::paint (juce::Graphics& g)
 
                 g.setColour (textColour);
                 const int textX = contentLeft + circleDiameter + 8;
-                const int textW = x + colW - textX - 4;
+                const int textW = x + colW - textX - 12;
                 const juce::Rectangle<int> textArea (textX, y, juce::jmax (0, textW), rowH);
                 g.drawText (txt, textArea, juce::Justification::centredLeft);
             }
