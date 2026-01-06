@@ -48,6 +48,7 @@ public:
     void next_page();
     void set_eighth_note_marble_types(marble_type_t *marble_types);
     void get_current_eighth_note_marble_types(marble_type_t *marble_types);
+    void get_edited_eighth_note_marble_types(marble_type_t *marble_types);
     bool is_current_eighth_note_locked();
     measure_lock_event_t *get_measure_lock_event(size_t measure_index);
     bool has_locked_measure_events_pending();

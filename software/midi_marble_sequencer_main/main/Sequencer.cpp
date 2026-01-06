@@ -176,6 +176,12 @@ void Sequencer::get_current_eighth_note_marble_types(marble_type_t *marble_types
     current_page.get_eighth_note_marble_types(_current_eighth_note_index, marble_types);
 }
 
+void Sequencer::get_edited_eighth_note_marble_types(marble_type_t *marble_types)
+{
+    SequencerPage &edited_page = _pages[_edited_page_index];
+    edited_page.get_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+}
+
 bool Sequencer::is_current_eighth_note_locked()
 {
     SequencerPage &current_page = _pages[_current_page_index];
