@@ -19,6 +19,8 @@ Sequencer::Sequencer()
     _current_page_index = 0;
     _current_eighth_note_index = 0;
 
+    _preview_eighth_note_index = SEQUENCER_EIGHTH_NOTE_NUM;  // No preview initially
+
     _is_playing = false;
     _bpm = SEQUENCER_BPM_DEFAULT;
     for (size_t i = 0; i < SEQUENCER_BPM_SAMPLE_COUNT; i++)
@@ -116,14 +118,26 @@ uint8_t Sequencer::get_current_eighth_note_index()
 
 void Sequencer::next_eighth_note()
 {
+    // Advance played page position
     if (!_pages[_current_page_index].has_playable_eighth_notes_after(_current_eighth_note_index))
     {
         next_page();
         _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
+        
+        // Restart preview playback at each page change
+        SequencerPage &edited_page = _pages[_edited_page_index];
+        _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index();
     }
     else
     {
         _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index_after(_current_eighth_note_index);
+
+        // Advance preview playback position for edited page
+        if (_preview_eighth_note_index < SEQUENCER_EIGHTH_NOTE_NUM)
+        {
+            SequencerPage &edited_page = _pages[_edited_page_index];
+            _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index_after(_preview_eighth_note_index);
+        }
     }
 }
 
@@ -137,7 +151,6 @@ void Sequencer::next_page()
             break;
         }
     }
-
 
     if (next_page_index >= SEQUENCER_PAGES_NUM)
     {
@@ -179,7 +192,7 @@ void Sequencer::get_current_eighth_note_marble_types(marble_type_t *marble_types
 void Sequencer::get_edited_eighth_note_marble_types(marble_type_t *marble_types)
 {
     SequencerPage &edited_page = _pages[_edited_page_index];
-    edited_page.get_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+    edited_page.get_eighth_note_marble_types(_preview_eighth_note_index, marble_types);
 }
 
 bool Sequencer::is_current_eighth_note_locked()
@@ -244,6 +257,11 @@ void Sequencer::_start_playing()
 {
     _current_page_index = _get_first_played_page_index();
     _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
+    
+    // Initialize preview playback for edited page
+    SequencerPage &edited_page = _pages[_edited_page_index];
+    _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index();
+    
     _is_playing = true;
     _sequencer_callback(SEQUENCER_CB_START_PLAYING, NULL, _sequencer_callback_context);
 }
@@ -252,6 +270,10 @@ void Sequencer::_stop_playing()
 {
     _current_page_index = _get_first_played_page_index();
     _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
+    
+    // Reset preview playback state
+    _preview_eighth_note_index = SEQUENCER_EIGHTH_NOTE_NUM;
+    
     _is_playing = false;
     _sequencer_callback(SEQUENCER_CB_STOP_PLAYING, NULL, _sequencer_callback_context);
 }

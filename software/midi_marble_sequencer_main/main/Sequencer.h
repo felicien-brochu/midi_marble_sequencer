@@ -66,6 +66,9 @@ private:
     uint8_t _current_page_index;
     uint8_t _current_eighth_note_index;
     
+    // Preview playback position for edited page (channels 8-15)
+    // Value >= SEQUENCER_EIGHTH_NOTE_NUM means no preview playback
+    uint8_t _preview_eighth_note_index;
     
     bool _is_playing;
     float _bpm_samples[SEQUENCER_BPM_SAMPLE_COUNT];

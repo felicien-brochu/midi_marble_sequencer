@@ -32,16 +32,6 @@ bool SequencerPage::is_empty()
     return true;
 }
 
-void SequencerPage::record_measure(marble_type_t *measure_marble_types, uint8_t measure_index)
-{
-    memcpy(_marble_types + measure_index * SEQUENCER_MARBLE_BY_MEASURE_NUM, measure_marble_types, SEQUENCER_MARBLE_BY_MEASURE_NUM * sizeof(marble_type_t));
-}
-
-void SequencerPage::record_page(marble_type_t *page_marble_types)
-{
-    memcpy(_marble_types, page_marble_types, SEQUENCER_TRACKS_NUM * SEQUENCER_EIGHTH_NOTE_NUM * sizeof(marble_type_t));
-}
-
 static inline uint8_t _eighth_note_index_to_measure_index(uint8_t eighth_note_index)
 {
     return eighth_note_index / SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM;
@@ -158,7 +148,15 @@ void SequencerPage::set_eighth_note_marble_types(uint8_t eighth_note_index, marb
 
 void SequencerPage::get_eighth_note_marble_types(uint8_t eighth_note_index, marble_type_t *marble_types)
 {
-    memcpy(marble_types, &_marble_types[eighth_note_index * SEQUENCER_TRACKS_NUM], SEQUENCER_TRACKS_NUM * sizeof(marble_type_t));
+    if (eighth_note_index >= SEQUENCER_EIGHTH_NOTE_NUM)
+    {
+        memset(marble_types, NO_MARBLE, SEQUENCER_TRACKS_NUM * sizeof(marble_type_t));
+        return;
+    }
+    else
+    {
+        memcpy(marble_types, &_marble_types[eighth_note_index * SEQUENCER_TRACKS_NUM], SEQUENCER_TRACKS_NUM * sizeof(marble_type_t));
+    }
 }
 
 measure_state_t SequencerPage::get_eighth_note_measure_state(uint8_t eighth_note_index)

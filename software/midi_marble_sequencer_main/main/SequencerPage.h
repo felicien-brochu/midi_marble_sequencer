@@ -21,9 +21,6 @@ public:
     SequencerPage();
 
     bool is_empty();
-
-    void record_measure(marble_type_t *measure_marble_types, uint8_t measure_index);
-    void record_page(marble_type_t *page_marble_types);
     bool has_playable_eighth_notes_after(uint8_t eighth_note_index);
     bool has_playable_eighth_notes();
     uint8_t get_first_playable_eighth_note_index();
