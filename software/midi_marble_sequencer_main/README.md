@@ -1,83 +1,56 @@
-| Supported Targets | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | -------- | -------- | -------- |
+# MIDI Marble Sequencer — firmware (main)
 
-# TinyUSB MIDI Device Example
+Compact firmware for the MIDI Marble Sequencer. Runs on ESP-IDF and exposes a USB MIDI device while controlling sensor boards, control boards, and a sequencer engine.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Highlights
+- Real-time sequencer with 8 tracks × 32 eighth-note positions
+- IR sensor-based marble color detection and calibration
+- USB MIDI output via TinyUSB
+- Control boards over I2C (main controls + pages)
+- Calibrate IR sensors via dedicated calibration mode
 
-This example shows how to set up ESP chip to work as a USB MIDI Device.
-It outputs a MIDI note sequence via the native USB port.
+## Requirements
+- ESP-IDF v5.x
+- C/C++ toolchain supported by ESP-IDF (esp-clang / xtensa)
+- USB host supporting TinyUSB (configured in project)
+- Connected hardware: IR sensor boards, control boards, calibration button, LEDs
 
-As a USB stack, a TinyUSB component is used.
+Repo uses component manifest: espressif/esp_tinyusb and idf ^5.0
 
-## How to use example
+## Build & Flash (typical)
+1. Install ESP-IDF v5 and toolchain following Espressif instructions.
+2. From firmware directory (where this README.md lives):
+    - idf.py build
+    - idf.py -p /dev/ttyUSB0 flash monitor
+    Replace serial port as needed.
 
-### Hardware Required
+## Calibration mode
+To enter calibration:
+1. Power OFF the device.
+2. Power ON while holding the calibration button (back of the device).
+3. Release the button when the device boots into calibration mode.
 
-Any ESP board that have USB-OTG supported.
+See calibration_README.md for detailed step-by-step instructions and measurement patterns.
 
-#### Pin Assignment
+## Usage
+- Plug device into a host — it appears as a MIDI device.
+- Use the hardware controls (play/pause, BPM potentiometer, page buttons, rotary buttons) to control playback and editing.
+- Sequencer state and controls are managed by ControlBoardsController and Sequencer classes; MIDI mapping is handled by MidiMapper.
 
-_Note:_ In case your board doesn't have micro-USB connector connected to USB-OTG peripheral, you may have to DIY a cable and connect **D+** and **D-** to the pins listed below.
+## Project layout (main)
+- main/
+  - Sequencer.* — sequencer logic and page management
+  - MasterClock.* — timing and scheduling
+  - MarbleDetector.* — detect marbles using thresholds
+  - MidiController.*, MidiMapper.* — MIDI output and mapping
+  - ControlBoardsController.* — I2C communications with control boards
+  - calibration/ — calibration controller, display, storage, stats
+  - IRSens* — IR sensor reading utilities
+  - CMakeLists.txt, idf_component.yml, README.md
 
-See common pin assignments for USB Device examples from [upper level](../../README.md#common-pin-assignments).
+## Contributing
+- Open PRs against main branch.
+- Keep firmware changes modular and test with hardware where possible.
 
-### Build and Flash
-
-Build the project and flash it to the board, then run monitor tool to view serial output:
-
-```bash
-idf.py -p PORT flash monitor
-```
-
-(Replace PORT with the name of the serial port to use.)
-
-(To exit the serial monitor, type ``Ctrl-]``.)
-
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
-
-## MIDI output
-
-You can use several programs on your computer to listen to the ESP's MIDI output depending on your operating system, e.g.:
-
-* Windows: `MIDI-OX`
-* Linux: `qsynth` with `qjackctl`
-* macOS: `SimpleSynth`
-
-## Example Output
-
-After the flashing you should see the output at idf monitor:
-
-```
-I (285) example: USB initialization
-I (285) tusb_desc:
-┌─────────────────────────────────┐
-│  USB Device Descriptor Summary  │
-├───────────────────┬─────────────┤
-│bDeviceClass       │ 0           │
-├───────────────────┼─────────────┤
-│bDeviceSubClass    │ 0           │
-├───────────────────┼─────────────┤
-│bDeviceProtocol    │ 0           │
-├───────────────────┼─────────────┤
-│bMaxPacketSize0    │ 64          │
-├───────────────────┼─────────────┤
-│idVendor           │ 0x303a      │
-├───────────────────┼─────────────┤
-│idProduct          │ 0x4008      │
-├───────────────────┼─────────────┤
-│bcdDevice          │ 0x100       │
-├───────────────────┼─────────────┤
-│iManufacturer      │ 0x1         │
-├───────────────────┼─────────────┤
-│iProduct           │ 0x2         │
-├───────────────────┼─────────────┤
-│iSerialNumber      │ 0x3         │
-├───────────────────┼─────────────┤
-│bNumConfigurations │ 0x1         │
-└───────────────────┴─────────────┘
-I (455) TinyUSB: TinyUSB Driver installed
-I (465) example: USB initialization DONE
-```
-
-Disconnect UART-to-USB port and connect the native USB port to a computer then the device should show up as a USB MIDI Device while outputting notes.
+## License
+Add a license file to the repo (e.g., MIT) if desired.
