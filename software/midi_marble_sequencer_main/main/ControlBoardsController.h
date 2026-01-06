@@ -28,8 +28,8 @@ private:
     i2c_master_dev_handle_t _controls_main_device_handle;
     i2c_master_dev_handle_t _controls_pages_device_handle;
 
-    uint8_t *_main_write_buffer;
-    uint8_t *_pages_write_buffer;
+    uint8_t _main_write_buffer[sizeof(controls_main_display_t)];
+    uint8_t _pages_write_buffer[sizeof(controls_pages_display_t)];
     controls_main_value_t _last_controls_main_value;
     controls_pages_value_t _last_controls_pages_value;
 

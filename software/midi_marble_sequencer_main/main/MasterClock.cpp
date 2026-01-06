@@ -230,7 +230,6 @@ void MasterClock::schedule_read_newly_locked_measures()
 
 void MasterClock::read_newly_locked_measures()
 {
-    measure_lock_event_t **measure_lock_events = _sequencer.get_measure_lock_events();
     bool received;
 
     while (true) {
@@ -242,7 +241,7 @@ void MasterClock::read_newly_locked_measures()
 
                 if (time_until_send_notes > min_duration_before_midi_send)
                 {
-                    measure_lock_event_t *event = measure_lock_events[i];
+                    measure_lock_event_t *event = _sequencer.get_measure_lock_event(i);
                     if (event != NULL)
                     {
                         marble_type_t measure_marble_types[SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM * SEQUENCER_TRACKS_NUM];

@@ -47,8 +47,6 @@ ControlBoardsController::ControlBoardsController(IControlBoardsListener &listene
 
 void ControlBoardsController::_init_main_controls_i2c()
 {
-    _main_write_buffer = (uint8_t *) malloc(sizeof(controls_main_display_t));
-
     i2c_device_config_t controls_main_device_config = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = I2C_CONFIG_CONTROLS_MAIN_ADDR,
@@ -64,8 +62,6 @@ void ControlBoardsController::_init_main_controls_i2c()
 
 void ControlBoardsController::_init_pages_controls_i2c()
 {
-    _pages_write_buffer = (uint8_t *) malloc(sizeof(controls_pages_display_t));
-
     i2c_device_config_t controls_pages_device_config = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = I2C_CONFIG_CONTROLS_PAGES_ADDR,
@@ -270,9 +266,9 @@ controls_pages_display_t ControlBoardsController::_get_controls_pages_display()
 {
     controls_pages_display_t controls_pages_display = _listener.get_controls_pages_display();
 
-    controls_pages_display.played_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.played_pages_buttons, SEQUENCER_TRACKS_NUM);
+    controls_pages_display.played_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.played_pages_buttons, SEQUENCER_PAGES_NUM);
 
-    controls_pages_display.edited_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.edited_pages_buttons, SEQUENCER_TRACKS_NUM);
+    controls_pages_display.edited_pages_buttons_clicks_consumed = _push_buttons_events_to_consumed_clicks(_last_controls_pages_value.edited_pages_buttons, SEQUENCER_PAGES_NUM);
 
     return controls_pages_display;
 }

@@ -8,10 +8,28 @@ static const char *TAG = "SEQUENCER_PAGE";
 
 SequencerPage::SequencerPage()
 {
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM * SEQUENCER_EIGHTH_NOTE_NUM; i++)
+    {
+        _marble_types[i] = NO_MARBLE;
+    }
+
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
         _measures_states[i] = MEASURE_STATE_PLAY;
     }
+}
+
+bool SequencerPage::is_empty()
+{
+    for (size_t i = 0; i < SEQUENCER_TRACKS_NUM * SEQUENCER_EIGHTH_NOTE_NUM; i++)
+    {
+        if (_marble_types[i] != NO_MARBLE)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void SequencerPage::record_measure(marble_type_t *measure_marble_types, uint8_t measure_index)

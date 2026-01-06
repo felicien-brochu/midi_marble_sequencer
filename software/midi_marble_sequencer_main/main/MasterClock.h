@@ -51,7 +51,7 @@ private:
     
     gptimer_handle_t _gptimer;
     QueueHandle_t _timed_queue;
-    uint8_t _alarms_since_eighth_note;
+    volatile uint8_t _alarms_since_eighth_note;
     bool _eighth_note_marble_detected;
     TaskHandle_t _timed_queue_task_handle;
     QueueHandle_t _measure_lock_event_queue;

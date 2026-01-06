@@ -35,7 +35,10 @@ Sequencer::Sequencer()
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
         _rotary_buttons_states[i] = ROTARY_BUTTON_PLAY;
-        _measure_lock_events[i] = NULL;
+        _measure_lock_events[i].used = false;
+
+        _measure_edit_soft_locked[i] = false;
+        _measure_edit_soft_lock_armed[i] = false;
     }
 }
 
@@ -113,17 +116,14 @@ uint8_t Sequencer::get_current_eighth_note_index()
 
 void Sequencer::next_eighth_note()
 {
-    SequencerPage &current_page = _pages[_current_page_index];
-    
-    if (!current_page.has_playable_eighth_notes_after(_current_eighth_note_index))
+    if (!_pages[_current_page_index].has_playable_eighth_notes_after(_current_eighth_note_index))
     {
         next_page();
-        current_page = _pages[_current_page_index];
-        _current_eighth_note_index = current_page.get_first_playable_eighth_note_index();
+        _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
     }
     else
     {
-        _current_eighth_note_index = current_page.get_first_playable_eighth_note_index_after(_current_eighth_note_index);
+        _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index_after(_current_eighth_note_index);
     }
 }
 
@@ -150,6 +150,23 @@ void Sequencer::next_page()
 void Sequencer::set_eighth_note_marble_types(marble_type_t *marble_types)
 {
     SequencerPage &edited_page = _pages[_edited_page_index];
+
+    const uint8_t measure_index = _current_eighth_note_index / SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM;
+    if (measure_index < SEQUENCER_MEASURES_NUM)
+    {
+        // While a measure is soft-locked (after page selection), ignore marble recording.
+        if (_measure_edit_soft_locked[measure_index])
+        {
+            return;
+        }
+
+        // If the measure is locked, marble recording must not overwrite the locked content.
+        if (edited_page.get_measures_states()[measure_index] == MEASURE_STATE_LOCK)
+        {
+            return;
+        }
+    }
+
     edited_page.set_eighth_note_marble_types(_current_eighth_note_index, marble_types);
 }
 
@@ -165,16 +182,24 @@ bool Sequencer::is_current_eighth_note_locked()
     return current_page.get_eighth_note_measure_state(_current_eighth_note_index) == MEASURE_STATE_LOCK;
 }
 
-measure_lock_event_t **Sequencer::get_measure_lock_events()
+measure_lock_event_t *Sequencer::get_measure_lock_event(size_t measure_index)
 {
-    return _measure_lock_events;
+    if (measure_index >= SEQUENCER_MEASURES_NUM)
+    {
+        return NULL;
+    }
+    if (!_measure_lock_events[measure_index].used)
+    {
+        return NULL;
+    }
+    return &_measure_lock_events[measure_index];
 }
 
 bool Sequencer::has_locked_measure_events_pending()
 {
     for (uint8_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
-        if (_measure_lock_events[i] != NULL)
+        if (_measure_lock_events[i].used)
         {
             return true;
         }
@@ -186,7 +211,7 @@ void Sequencer::set_locked_measure_marble_types(measure_lock_event_t *event, mar
 {
     SequencerPage &page = _pages[event->page_index];
     page.set_measure_marble_types(event->measure_index, measure_marble_types);
-    _measure_lock_events[event->measure_index] = NULL;
+    _delete_measure_lock_event(event->measure_index);
 }
 
 const bool *Sequencer::get_enabled_tracks()
@@ -299,16 +324,6 @@ inline measure_state_t _rotary_button_state_to_measure_state(const rotary_button
 
 void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_state_t *rotary_buttons_states)
 {
-    measure_state_t new_page_measures_states[SEQUENCER_MEASURES_NUM];
-    for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
-    {
-        if (rotary_buttons_states[i] != ROTARY_BUTTON_UNKNOWN)
-        {
-            _rotary_buttons_states[i] = rotary_buttons_states[i];
-            new_page_measures_states[i] = _rotary_button_state_to_measure_state(_rotary_buttons_states[i]);
-        }
-    }
-    
     SequencerPage &edited_page = _pages[_edited_page_index];
 
     measure_state_t *page_measures_states = edited_page.get_measures_states();
@@ -316,22 +331,56 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
 
     for (size_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
     {
+        if (rotary_buttons_states[i] == ROTARY_BUTTON_UNKNOWN)
+        {
+            continue;
+        }
+
+        _rotary_buttons_states[i] = rotary_buttons_states[i];
+
+        // Edit gating: on newly selected edited pages, ignore changes until user does LOCK then PLAY/SKIP.
+        if (_measure_edit_soft_locked[i])
+        {
+            if (!_measure_edit_soft_lock_armed[i])
+            {
+                if (_rotary_buttons_states[i] == ROTARY_BUTTON_LOCK)
+                {
+                    _measure_edit_soft_lock_armed[i] = true;
+                }
+                // ignore any other state until armed
+                continue;
+            }
+
+            // armed: wait for leaving LOCK, then apply and unlock editing
+            if (_rotary_buttons_states[i] == ROTARY_BUTTON_LOCK)
+            {
+                continue;
+            }
+
+            page_measures_states[i] = _rotary_button_state_to_measure_state(_rotary_buttons_states[i]);
+            _measure_edit_soft_locked[i] = false;
+            _measure_edit_soft_lock_armed[i] = false;
+            // If user applied PLAY/SKIP here, ensure any pending lock read is cancelled.
+            _delete_measure_lock_event(i);
+            continue;
+        }
+
+        // Normal behavior (no soft-lock gating)
         if (_rotary_buttons_states[i] == ROTARY_BUTTON_LOCK)
         {
-            if (page_measures_states[i] != MEASURE_STATE_LOCK  && page_measures_states[i] != MEASURE_STATE_SOFT_LOCK)
+            if (page_measures_states[i] != MEASURE_STATE_LOCK)
             {
                 _register_new_measure_lock_event(i);
                 has_new_lock_state = true;
+                page_measures_states[i] = MEASURE_STATE_LOCK;
             }
         }
         else
         {
+            page_measures_states[i] = _rotary_button_state_to_measure_state(_rotary_buttons_states[i]);
             _delete_measure_lock_event(i);
         }
     }
-
-    
-    edited_page.set_measures_states(new_page_measures_states);
     
     if (has_new_lock_state)
     {
@@ -341,19 +390,16 @@ void Sequencer::_set_measures_states_from_rotary_buttons(const rotary_button_sta
 
 void Sequencer::_delete_measure_lock_event(size_t i)
 {
-    if (_measure_lock_events[i] != NULL)
-    {
-        free(_measure_lock_events[i]);
-        _measure_lock_events[i] = NULL;
-    }
+    _measure_lock_events[i].used = false;
 }
 
 void Sequencer::_register_new_measure_lock_event(size_t i)
 {
     _delete_measure_lock_event(i);
-    _measure_lock_events[i] = (measure_lock_event_t *)malloc(sizeof(measure_lock_event_t));
-    _measure_lock_events[i]->page_index = _edited_page_index;
-    _measure_lock_events[i]->measure_index = i;
+
+    _measure_lock_events[i].used = true;
+    _measure_lock_events[i].page_index = _edited_page_index;
+    _measure_lock_events[i].measure_index = i;
 }
 
 void Sequencer::_set_played_pages_from_buttons(const uint16_t push_buttons_events)
@@ -398,15 +444,66 @@ void Sequencer::_set_edited_pages_from_buttons(const uint16_t push_buttons_event
 {
     uint16_t events = push_buttons_events;
 
-    for (size_t i = SEQUENCER_PAGES_NUM; i > 0; i--)
+    for (uint8_t i = SEQUENCER_PAGES_NUM; i > 0; i--)
     {
         // has odd number of clicks pending
         if (events & 0x2)
         {
             // ESP_LOGI(TAG, "Edited page btn clck [%d]", i - 1);
-            _edited_page_index = i - 1;
+            _select_edited_page(i - 1);
             return;
         }
         events = events >> 2;
+    }
+}
+
+void Sequencer::_select_edited_page(uint8_t page_index)
+{
+    if (page_index != _edited_page_index)
+    {
+        // Before switching edited page, persist current marbles for measures that are already editable
+        // (i.e. not soft-locked and not hard-locked).
+        const uint8_t previous_edited_page_index = _edited_page_index;
+        SequencerPage &previous_page = _pages[previous_edited_page_index];
+        measure_state_t *previous_measures_states = previous_page.get_measures_states();
+        bool has_new_record_event = false;
+
+        for (uint8_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
+        {
+            if (_measure_edit_soft_locked[i])
+            {
+                continue;
+            }
+
+            if (previous_measures_states[i] == MEASURE_STATE_LOCK)
+            {
+                continue;
+            }
+
+            if (_measure_lock_events[i].used)
+            {
+                continue;
+            }
+
+            _measure_lock_events[i].used = true;
+            _measure_lock_events[i].page_index = previous_edited_page_index;
+            _measure_lock_events[i].measure_index = i;
+            has_new_record_event = true;
+        }
+
+        if (has_new_record_event && _sequencer_callback != NULL)
+        {
+            _sequencer_callback(SEQUENCER_CB_NEW_LOCK_EVENT, NULL, _sequencer_callback_context);
+        }
+
+        _edited_page_index = page_index;
+
+        // Soft-lock edits on non-empty pages.
+        bool is_empty_page = _pages[_edited_page_index].is_empty();
+        for (uint8_t i = 0; i < SEQUENCER_MEASURES_NUM; i++)
+        {
+            _measure_edit_soft_locked[i] = !is_empty_page;
+            _measure_edit_soft_lock_armed[i] = false;
+        }
     }
 }

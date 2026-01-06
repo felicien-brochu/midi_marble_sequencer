@@ -26,6 +26,7 @@ typedef void (* sequencer_callback_t)(sequencer_callback_type_t callback_type, v
 typedef struct {
     uint8_t page_index;
     uint8_t measure_index;
+    bool used;
 } measure_lock_event_t;
 
 
@@ -48,7 +49,7 @@ public:
     void set_eighth_note_marble_types(marble_type_t *marble_types);
     void get_current_eighth_note_marble_types(marble_type_t *marble_types);
     bool is_current_eighth_note_locked();
-    measure_lock_event_t **get_measure_lock_events();
+    measure_lock_event_t *get_measure_lock_event(size_t measure_index);
     bool has_locked_measure_events_pending();
     void set_locked_measure_marble_types(measure_lock_event_t *event, marble_type_t *measure_marble_types);
     const bool *get_enabled_tracks();
@@ -70,7 +71,12 @@ private:
     float _bpm;
     bool _tracks_enabled[SEQUENCER_TRACKS_NUM];
     rotary_button_state_t _rotary_buttons_states[SEQUENCER_MEASURES_NUM];
-    measure_lock_event_t *_measure_lock_events[SEQUENCER_MEASURES_NUM];
+    measure_lock_event_t _measure_lock_events[SEQUENCER_MEASURES_NUM];
+
+    // Per-measure edit gating for the currently edited page.
+    // When soft-locked, rotary changes are ignored until user does LOCK then PLAY/SKIP.
+    bool _measure_edit_soft_locked[SEQUENCER_MEASURES_NUM];
+    bool _measure_edit_soft_lock_armed[SEQUENCER_MEASURES_NUM];
 
     
     void _start_playing();
@@ -88,4 +94,5 @@ private:
 
     void _set_played_pages_from_buttons(const uint16_t push_buttons_events);
     void _set_edited_pages_from_buttons(const uint16_t push_buttons_events);
+    void _select_edited_page(uint8_t i);
 };
