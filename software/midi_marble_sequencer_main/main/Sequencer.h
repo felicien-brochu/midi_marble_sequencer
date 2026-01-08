@@ -43,10 +43,11 @@ public:
     bool is_playing();
     // Return eighth note duration in us.
     uint64_t get_eighth_note_duration();
+    // Returns tick count from start of played page playback
     uint8_t get_current_eighth_note_index();
     void next_eighth_note();
     void next_page();
-    void set_eighth_note_marble_types(marble_type_t *marble_types);
+    void set_current_eighth_note_marble_types(marble_type_t *marble_types);
     void get_current_eighth_note_marble_types(marble_type_t *marble_types);
     void get_edited_eighth_note_marble_types(marble_type_t *marble_types);
     bool is_current_eighth_note_locked();
@@ -64,11 +65,7 @@ private:
     uint8_t _edited_page_index;
 
     uint8_t _current_page_index;
-    uint8_t _current_eighth_note_index;
-    
-    // Preview playback position for edited page (channels 8-15)
-    // Value >= SEQUENCER_EIGHTH_NOTE_NUM means no preview playback
-    uint8_t _preview_eighth_note_index;
+    uint8_t _eighth_note_played;  // Tick count from start of playback of the current page
     
     bool _is_playing;
     float _bpm_samples[SEQUENCER_BPM_SAMPLE_COUNT];

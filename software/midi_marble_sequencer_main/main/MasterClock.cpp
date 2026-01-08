@@ -210,7 +210,7 @@ void MasterClock::_detect_marbles()
         marble_type_t marble_types[SEQUENCER_TRACKS_NUM];
         _marble_detector.detect_eighth_note_marbles(_sequencer.get_current_eighth_note_index(), marble_types);
 
-        _sequencer.set_eighth_note_marble_types(marble_types);
+        _sequencer.set_current_eighth_note_marble_types(marble_types);
 
         // for (size_t i = 0; i < SEQUENCER_TRACKS_NUM; i++)
         // {

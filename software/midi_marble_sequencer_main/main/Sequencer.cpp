@@ -17,9 +17,7 @@ Sequencer::Sequencer()
     _edited_page_index = 0;
 
     _current_page_index = 0;
-    _current_eighth_note_index = 0;
-
-    _preview_eighth_note_index = SEQUENCER_EIGHTH_NOTE_NUM;  // No preview initially
+    _eighth_note_played = 0;
 
     _is_playing = false;
     _bpm = SEQUENCER_BPM_DEFAULT;
@@ -113,31 +111,26 @@ uint64_t Sequencer::get_eighth_note_duration()
 
 uint8_t Sequencer::get_current_eighth_note_index()
 {
-    return _current_eighth_note_index;
+    SequencerPage &current_page = _pages[_current_page_index];
+    uint8_t eighth_note_index = current_page.tick_to_eighth_note_index(_eighth_note_played);
+    return eighth_note_index;
 }
 
 void Sequencer::next_eighth_note()
 {
-    // Advance played page position
-    if (!_pages[_current_page_index].has_playable_eighth_notes_after(_current_eighth_note_index))
+    SequencerPage &current_page = _pages[_current_page_index];
+    
+    // Advance tick (used by both played and edited pages)
+    if (!current_page.has_more_ticks_after(_eighth_note_played))
     {
+        // End of current page, move to next page and reset tick
         next_page();
-        _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
-        
-        // Restart preview playback at each page change
-        SequencerPage &edited_page = _pages[_edited_page_index];
-        _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index();
+        _eighth_note_played = 0;
     }
     else
     {
-        _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index_after(_current_eighth_note_index);
-
-        // Advance preview playback position for edited page
-        if (_preview_eighth_note_index < SEQUENCER_EIGHTH_NOTE_NUM)
-        {
-            SequencerPage &edited_page = _pages[_edited_page_index];
-            _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index_after(_preview_eighth_note_index);
-        }
+        // Continue advancing tick
+        _eighth_note_played++;
     }
 }
 
@@ -160,11 +153,14 @@ void Sequencer::next_page()
     _current_page_index = next_page_index;
 }
 
-void Sequencer::set_eighth_note_marble_types(marble_type_t *marble_types)
+void Sequencer::set_current_eighth_note_marble_types(marble_type_t *marble_types)
 {
     SequencerPage &edited_page = _pages[_edited_page_index];
-
-    const uint8_t measure_index = _current_eighth_note_index / SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM;
+    
+    // Convert tick to eighth note index to get the measure
+    uint8_t eighth_note_index = edited_page.tick_to_eighth_note_index(_eighth_note_played);
+    const uint8_t measure_index = eighth_note_index / SEQUENCER_EIGHTH_NOTE_BY_MEASURE_NUM;
+    
     if (measure_index < SEQUENCER_MEASURES_NUM)
     {
         // While a measure is soft-locked (after page selection), ignore marble recording.
@@ -180,25 +176,25 @@ void Sequencer::set_eighth_note_marble_types(marble_type_t *marble_types)
         }
     }
 
-    edited_page.set_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+    edited_page.set_eighth_note_marble_types_from_tick(_eighth_note_played, marble_types);
 }
 
 void Sequencer::get_current_eighth_note_marble_types(marble_type_t *marble_types)
 {
     SequencerPage &current_page = _pages[_current_page_index];
-    current_page.get_eighth_note_marble_types(_current_eighth_note_index, marble_types);
+    current_page.get_eighth_note_marble_types_from_tick(_eighth_note_played, marble_types);
 }
 
 void Sequencer::get_edited_eighth_note_marble_types(marble_type_t *marble_types)
 {
     SequencerPage &edited_page = _pages[_edited_page_index];
-    edited_page.get_eighth_note_marble_types(_preview_eighth_note_index, marble_types);
+    edited_page.get_eighth_note_marble_types_from_tick(_eighth_note_played, marble_types);
 }
 
 bool Sequencer::is_current_eighth_note_locked()
 {
     SequencerPage &current_page = _pages[_current_page_index];
-    return current_page.get_eighth_note_measure_state(_current_eighth_note_index) == MEASURE_STATE_LOCK;
+    return current_page.get_eighth_note_measure_state_from_tick(_eighth_note_played) == MEASURE_STATE_LOCK;
 }
 
 measure_lock_event_t *Sequencer::get_measure_lock_event(size_t measure_index)
@@ -256,11 +252,7 @@ void Sequencer::_set_playing_from_play_pause_switch(bool play_pause_switch_pushe
 void Sequencer::_start_playing()
 {
     _current_page_index = _get_first_played_page_index();
-    _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
-    
-    // Initialize preview playback for edited page
-    SequencerPage &edited_page = _pages[_edited_page_index];
-    _preview_eighth_note_index = edited_page.get_first_playable_eighth_note_index();
+    _eighth_note_played = 0;  // Start at tick 0
     
     _is_playing = true;
     _sequencer_callback(SEQUENCER_CB_START_PLAYING, NULL, _sequencer_callback_context);
@@ -269,10 +261,7 @@ void Sequencer::_start_playing()
 void Sequencer::_stop_playing()
 {
     _current_page_index = _get_first_played_page_index();
-    _current_eighth_note_index = _pages[_current_page_index].get_first_playable_eighth_note_index();
-    
-    // Reset preview playback state
-    _preview_eighth_note_index = SEQUENCER_EIGHTH_NOTE_NUM;
+    _eighth_note_played = 0;  // Reset to tick 0
     
     _is_playing = false;
     _sequencer_callback(SEQUENCER_CB_STOP_PLAYING, NULL, _sequencer_callback_context);
