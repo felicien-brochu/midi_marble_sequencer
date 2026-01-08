@@ -14,7 +14,7 @@ CalibrationController::CalibrationController(int marbles_for_one_color, int samp
     _samples_by_test = samples_by_test;
     _ms_between_samples = ms_between_samples;
 
-    _calibration_state = HORIZONTAL_CALIBRATION_IDLE;
+    _calibration_state = CALIBRATION_IDLE;
     _measure_count = 0;
 
     uint16_t num_sensor_stats = NUM_IR_SENS_BOARDS * NUM_IR_SENS_BY_BOARD;
@@ -34,15 +34,15 @@ CalibrationController::CalibrationController(int marbles_for_one_color, int samp
 
 void CalibrationController::update()
 {
-    if (_calibration_state == HORIZONTAL_CALIBRATION_IDLE)
+    if (_calibration_state == CALIBRATION_IDLE)
     {
         _idle_state_update();
     }
-    else if (_calibration_state == HORIZONTAL_CALIBRATION_WAIT_PLACEMENT)
+    else if (_calibration_state == CALIBRATION_WAIT_PLACEMENT)
     {
         _waiting_placement_state_update();
     }
-    if (_calibration_state == HORIZONTAL_CALIBRATION_READ)
+    if (_calibration_state == CALIBRATION_READ)
     {
         _read_state_update();
     }
@@ -50,14 +50,14 @@ void CalibrationController::update()
 
 bool CalibrationController::is_complete()
 {
-    return _calibration_state == HORIZONTAL_CALIBRATION_COMPLETE;
+    return _calibration_state == CALIBRATION_COMPLETE;
 }
 
 void CalibrationController::_idle_state_update()
 {
     _print_marble_placement();
 
-    _calibration_state = HORIZONTAL_CALIBRATION_WAIT_PLACEMENT;
+    _calibration_state = CALIBRATION_WAIT_PLACEMENT;
 }
 
 void CalibrationController::_waiting_placement_state_update()
@@ -72,7 +72,7 @@ void CalibrationController::_waiting_placement_state_update()
         _push_button.click_event_accounted_for();
         _push_button.stop_listening_clicks();
 
-        _calibration_state = HORIZONTAL_CALIBRATION_READ;
+        _calibration_state = CALIBRATION_READ;
 
         printf("Measuring...\n");
 
@@ -107,13 +107,13 @@ void CalibrationController::_read_state_update()
     }
     else
     {
-        _calibration_state = HORIZONTAL_CALIBRATION_IDLE;
+        _calibration_state = CALIBRATION_IDLE;
     }
 }
 
 void CalibrationController::_on_measure_complete()
 {
-    _calibration_state = HORIZONTAL_CALIBRATION_COMPLETE;
+    _calibration_state = CALIBRATION_COMPLETE;
     // _print_statistics();
     // _print_c_array_means();
     _display.show_completion_rate(1./8.);
@@ -241,7 +241,7 @@ void CalibrationController::_print_marble_intervals_for_sensor(uint8_t board_ind
     for (int i = 0; i < NUM_MARBLE_TYPE; i++)
     {
         ColorStatistics color_stats = sensor_stats->color_statistics[i];
-        printf(" %4d <%s> %4d |", color_stats.min, marble_type_to_string(static_cast<marble_type_t>(i)), color_stats.max);
+        printf(" %4ld <%s> %4ld |", color_stats.min, marble_type_to_string(static_cast<marble_type_t>(i)), color_stats.max);
 
         if (i < NUM_MARBLE_TYPE - 1)
         {
@@ -280,7 +280,7 @@ void CalibrationController::_print_csv_data()
             for (int marble_type = 0; marble_type < NUM_MARBLE_TYPE; marble_type++)
             {
                 ColorStatistics color_stats = sensor_stats->color_statistics[marble_type];
-                printf("%d;%d;\"%s\";%d;%d;%d;", board_index, ir_sens_channel, marble_type_to_string(static_cast<marble_type_t>(marble_type)), color_stats.min, color_stats.max, color_stats.mean);
+                printf("%d;%d;\"%s\";%ld;%ld;%ld;", board_index, ir_sens_channel, marble_type_to_string(static_cast<marble_type_t>(marble_type)), color_stats.min, color_stats.max, color_stats.mean);
 
                 printf("%d;", prev_threshold);
 
@@ -362,7 +362,7 @@ void CalibrationController::_print_c_array_means()
             printf("{");
             for (int j = 0; j < NUM_MARBLE_TYPE; j++)
             {
-                printf("%4d", sensor_stats->color_statistics[j].mean);
+                printf("%4ld", sensor_stats->color_statistics[j].mean);
 
                 // Not last mean
                 if (j < NUM_MARBLE_TYPE - 1)

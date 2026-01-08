@@ -10,11 +10,11 @@ public:
 
     void push_sample(int value_off, int value_on);
 
-    uint16_t min;
-    uint16_t max;
-    uint32_t sum;
+    int32_t min;
+    int32_t max;
+    int32_t sum;
     uint16_t nb_samples;
-    uint16_t mean;
+    int32_t mean;
 };
 
 class SensorStatistics
