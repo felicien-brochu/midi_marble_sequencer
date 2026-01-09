@@ -14,7 +14,59 @@ The calibration process measures the IR sensor response for different marble col
 
 The device will enter calibration mode instead of normal operation.
 
-## Calibration Process
+## Board Calibration Phase
+
+Before the main sensor calibration begins, you'll need to complete a board calibration phase. This phase ensures that all IR sensor boards have their potentiometers properly adjusted for optimal performance.
+
+### What You Need
+- **1 Brown marble** (for sensor 0)
+- **1 Blue marble** (for sensor 15)
+
+### How It Works
+
+The board calibration phase uses LED feedback to help you adjust each board's potentiometer:
+
+1. **LED Indicators:**
+   - The **BeatsLEDSnake** shows which board is currently selected (one LED lit)
+   - **Top LED line** (played_pages_led): Shows the brown marble reading on sensor 0
+   - **Bottom LED line** (edited_pages_led): Shows the blue marble reading on sensor 15
+
+2. **LED Feedback Pattern:**
+   - **LED 0:** Value too low (below acceptable range)
+   - **LEDs 1, 2, or 3:** Approaching target from below
+   - **LEDs 3 and 4 (both):** Perfect! Value is on target ✓
+   - **LEDs 4, 5, or 6:** Moving away from target toward upper limit
+   - **LED 7:** Value too high (above acceptable range)
+
+3. **Target Values:**
+   - **Brown marble (sensor 0):** Target = 450, Acceptable range [250, 650]
+   - **Blue marble (sensor 15):** Target = 2400, Acceptable range [2000, 2800]
+
+### Step-by-Step Instructions
+
+1. **Place the Marbles**
+   - Place a **brown marble** on **sensor 0** of the selected board
+   - Place a **blue marble** on **sensor 15** of the selected board
+
+2. **Adjust the Potentiometer**
+   - Watch the LED lines for feedback
+   - Turn the board's potentiometer until **both LED lines show LEDs 3 and 4 lit together**
+   - This indicates optimal calibration for both sensors
+
+3. **Move to Next Board**
+   - **Short press** the calibration button to select the next board
+   - The BeatsLEDSnake LED will move to indicate the newly selected board
+   - Sensor values for the newly selected board will be logged to console
+
+4. **Repeat for All Boards**
+   - Repeat steps 1-3 for all 16 boards
+   - You can cycle through boards as many times as needed to fine-tune adjustments
+
+5. **Complete Board Calibration**
+   - Once all boards are calibrated, **press and hold** the calibration button for **5 seconds**
+   - The system will wait for the button to be released, then proceed to sensor calibration
+
+## Sensor Calibration Process
 
 ### What You Need
 - **32 marbles of each color** (160 marbles total):

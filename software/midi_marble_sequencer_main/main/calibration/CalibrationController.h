@@ -5,9 +5,12 @@
 #include "CalibrationDisplay.h"
 #include "ControlBoardsController.h"
 #include "SensorStatistics.h"
+#include "BoardCalibrationPhase.h"
+#include "BeatsLEDSnake.h"
 
 typedef enum
 {
+    CALIBRATION_BOARD_PHASE,
     CALIBRATION_IDLE,
     CALIBRATION_WAIT_PLACEMENT,
     CALIBRATION_READ,
@@ -22,8 +25,8 @@ public:
 
     void update();
     bool is_complete();
-
-private:
+    
+    private:
     int _marbles_for_one_color;
     int _samples_by_test;
     int _ms_between_samples;
@@ -33,6 +36,8 @@ private:
     PushButton &_push_button;
     CalibrationDisplay _display;
     ControlBoardsController _control_boards_controller;
+    BeatsLEDSnake _beats_led_snake;
+    BoardCalibrationPhase *_board_calibration_phase;
 
     uint32_t *_values_on;
     uint32_t *_values_off;
@@ -41,9 +46,10 @@ private:
     uint16_t _measure_count;
     SensorStatistics **_statistics;
 
-    void _idle_state_update();
-    void _waiting_placement_state_update();
-    void _read_state_update();
+    void _update_board_calibration_phase();
+    void _update_idle_state();
+    void _update_waiting_placement_state();
+    void _update_read_state();
     void _on_measure_complete();
     void _sensor_statistics_to_thresholds(uint16_t (*out_thresholds)[NUM_IR_SENS_BY_BOARD][NUM_MARBLE_TYPE - 1]);
     void _save_calibration_data_to_nvs();

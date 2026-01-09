@@ -1,6 +1,7 @@
 #include "CalibrationController.h"
 #include "CalibrationButton.h"
 #include "CalibrationStorage.h"
+#include "BoardCalibrationPhase.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -14,8 +15,11 @@ CalibrationController::CalibrationController(int marbles_for_one_color, int samp
     _samples_by_test = samples_by_test;
     _ms_between_samples = ms_between_samples;
 
-    _calibration_state = CALIBRATION_IDLE;
+    _calibration_state = CALIBRATION_BOARD_PHASE;
     _measure_count = 0;
+    
+    // Initialize board calibration phase
+    _board_calibration_phase = new BoardCalibrationPhase(&_ir_sens_boards, &_board_reader, _push_button, &_display, &_beats_led_snake);
 
     uint16_t num_sensor_stats = NUM_IR_SENS_BOARDS * NUM_IR_SENS_BY_BOARD;
     _statistics = (SensorStatistics **) malloc(num_sensor_stats * sizeof(SensorStatistics *));
@@ -34,17 +38,32 @@ CalibrationController::CalibrationController(int marbles_for_one_color, int samp
 
 void CalibrationController::update()
 {
-    if (_calibration_state == CALIBRATION_IDLE)
+    if (_calibration_state == CALIBRATION_BOARD_PHASE)
     {
-        _idle_state_update();
+        _update_board_calibration_phase();
+    }
+    else if (_calibration_state == CALIBRATION_IDLE)
+    {
+        _update_idle_state();
     }
     else if (_calibration_state == CALIBRATION_WAIT_PLACEMENT)
     {
-        _waiting_placement_state_update();
+        _update_waiting_placement_state();
     }
     if (_calibration_state == CALIBRATION_READ)
     {
-        _read_state_update();
+        _update_read_state();
+    }
+}
+
+void CalibrationController::_update_board_calibration_phase()
+{
+    _board_calibration_phase->update();
+    if (_board_calibration_phase->is_complete())
+    {
+        delete _board_calibration_phase;
+        _board_calibration_phase = nullptr;
+        _calibration_state = CALIBRATION_IDLE;
     }
 }
 
@@ -53,14 +72,14 @@ bool CalibrationController::is_complete()
     return _calibration_state == CALIBRATION_COMPLETE;
 }
 
-void CalibrationController::_idle_state_update()
+void CalibrationController::_update_idle_state()
 {
     _print_marble_placement();
 
     _calibration_state = CALIBRATION_WAIT_PLACEMENT;
 }
 
-void CalibrationController::_waiting_placement_state_update()
+void CalibrationController::_update_waiting_placement_state()
 {
     if (!_push_button.has_click_listener()) {
         _push_button.start_listening_clicks();
@@ -80,7 +99,7 @@ void CalibrationController::_waiting_placement_state_update()
     }
 }
 
-void CalibrationController::_read_state_update()
+void CalibrationController::_update_read_state()
 {
     for (size_t board_index = 0; board_index < NUM_IR_SENS_BOARDS; board_index++)
     {

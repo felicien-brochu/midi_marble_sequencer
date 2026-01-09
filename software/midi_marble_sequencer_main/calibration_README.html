@@ -376,7 +376,104 @@
             </ol>
             <p>The device will enter calibration mode instead of normal operation.</p>
 
-            <h2>Calibration Process</h2>
+            <h2>Board Calibration Phase</h2>
+            <div class="card info">
+                <p>Before the main sensor calibration begins, you'll need to complete a board calibration phase. This phase ensures that all IR sensor boards have their potentiometers properly adjusted for optimal performance.</p>
+            </div>
+
+            <h3>What You Need</h3>
+            <div class="card">
+                <ul>
+                    <li><strong>1 Brown marble</strong> (for sensor 0)</li>
+                    <li><strong>1 Blue marble</strong> (for sensor 15)</li>
+                </ul>
+                
+                <div class="marble-colors" style="margin-top: 1rem;">
+                    <div class="marble">
+                        <div class="marble-icon brown"></div>
+                        <strong>Brown</strong><br>
+                        <small>Sensor 0</small>
+                    </div>
+                    <div class="marble">
+                        <div class="marble-icon blue"></div>
+                        <strong>Blue</strong><br>
+                        <small>Sensor 15</small>
+                    </div>
+                </div>
+            </div>
+
+            <h3>How It Works</h3>
+            <p>The board calibration phase uses LED feedback to help you adjust each board's potentiometer:</p>
+            
+            <div class="card">
+                <h4>LED Indicators:</h4>
+                <ul>
+                    <li>The <strong>BeatsLEDSnake</strong> shows which board is currently selected (one LED lit)</li>
+                    <li><strong>Top LED line</strong> (played_pages_led): Shows the brown marble reading on sensor 0</li>
+                    <li><strong>Bottom LED line</strong> (edited_pages_led): Shows the blue marble reading on sensor 15</li>
+                </ul>
+
+                <h4 style="margin-top: 1rem;">LED Feedback Pattern:</h4>
+                <ul>
+                    <li><strong>LED 0:</strong> Value too low (below acceptable range)</li>
+                    <li><strong>LEDs 1, 2, or 3:</strong> Approaching target from below</li>
+                    <li><strong style="color: var(--success-color);">LEDs 3 and 4 (both):</strong> Perfect! Value is on target ✓</li>
+                    <li><strong>LEDs 4, 5, or 6:</strong> Moving away from target toward upper limit</li>
+                    <li><strong>LED 7:</strong> Value too high (above acceptable range)</li>
+                </ul>
+
+                <h4 style="margin-top: 1rem;">Target Values:</h4>
+                <ul>
+                    <li><strong>Brown marble (sensor 0):</strong> Target = 450, Acceptable range [250, 650]</li>
+                    <li><strong>Blue marble (sensor 15):</strong> Target = 2400, Acceptable range [2000, 2800]</li>
+                </ul>
+            </div>
+
+            <h3>Step-by-Step Instructions</h3>
+
+            <div class="card">
+                <h4><span class="step-number">1</span>Place the Marbles</h4>
+                <ul>
+                    <li>Place a <strong>brown marble</strong> on <strong>sensor 0</strong> of the selected board</li>
+                    <li>Place a <strong>blue marble</strong> on <strong>sensor 15</strong> of the selected board</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">2</span>Adjust the Potentiometer</h4>
+                <ul>
+                    <li>Watch the LED lines for feedback</li>
+                    <li>Turn the board's potentiometer until <strong>both LED lines show LEDs 3 and 4 lit together</strong></li>
+                    <li>This indicates optimal calibration for both sensors</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">3</span>Move to Next Board</h4>
+                <ul>
+                    <li><strong>Short press</strong> the calibration button to select the next board</li>
+                    <li>The BeatsLEDSnake LED will move to indicate the newly selected board</li>
+                    <li>Sensor values for the newly selected board will be logged to console</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4><span class="step-number">4</span>Repeat for All Boards</h4>
+                <ul>
+                    <li>Repeat steps 1-3 for all 16 boards</li>
+                    <li>You can cycle through boards as many times as needed to fine-tune adjustments</li>
+                </ul>
+            </div>
+
+            <div class="card success">
+                <h4><span class="step-number">5</span>Complete Board Calibration</h4>
+                <ul>
+                    <li>Once all boards are calibrated, <strong>press and hold</strong> the calibration button for <strong>5 seconds</strong></li>
+                    <li>The system will wait for the button to be released, then proceed to sensor calibration</li>
+                </ul>
+            </div>
+
+            <h2>Sensor Calibration Process</h2>
 
             <h3>What You Need</h3>
             <div class="card">

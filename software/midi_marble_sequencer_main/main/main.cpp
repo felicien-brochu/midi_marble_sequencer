@@ -19,18 +19,6 @@ static const char *TAG = "main";
 
 void main_calibrate()
 {
-    // Wait for button release to avoid accidental first press detection
-    CalibrationButton &calibration_button = CalibrationButton::instance();
-    do {
-        calibration_button.update();
-        if (calibration_button.has_click_event_pending()) {
-            calibration_button.click_event_accounted_for();
-            calibration_button.stop_listening_clicks();
-            break;
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
-    } while (true);
-
     CalibrationController calibration(8, 10, 0);
     // CalibrationController calibration(1, 1, 0);
     while (1)
@@ -53,7 +41,15 @@ void main_midi_marble_sequencer()
     calibration_button.start_listening_clicks();
     calibration_button.update();
     if (calibration_button.is_down()) {
-        ESP_LOGI(TAG, "Calibration button is down at startup, entering calibration mode");
+        ESP_LOGI(TAG, "Calibration button is down at startup, waiting for release before entering calibration mode");
+        
+        // Wait for button to be released
+        while (calibration_button.is_down()) {
+            calibration_button.update();
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        
+        ESP_LOGI(TAG, "Calibration button released, entering calibration mode");
         main_calibrate();
     }
     else {
